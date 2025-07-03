@@ -6,22 +6,25 @@ import { defineConfig } from "eslint/config";
 
 export default defineConfig([
   {
+    ignores: ["dist/**", "build/**", "node_modules/**"],
+  },
+  {
     files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
     plugins: { js },
     extends: ["js/recommended"],
     languageOptions: { globals: globals.browser },
   },
   tseslint.configs.recommended,
-  pluginReact.configs.flat.recommended,
-  // Configuration custom pour react settings et rules
+
+  // Étape clé : étendre et ajouter settings ici
   {
     files: ["**/*.{jsx,tsx}"],
+    extends: [pluginReact.configs.flat.recommended],
     languageOptions: {
       globals: globals.browser,
     },
     rules: {
       "react/react-in-jsx-scope": "off",
-      // tu peux ajouter d'autres règles personnalisées ici
     },
     settings: {
       react: {
