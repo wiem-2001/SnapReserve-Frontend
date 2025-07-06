@@ -6,13 +6,13 @@ import Profile from '../pages/Profile';
 import Resell from '../pages/Resell';
 import LoginPage from '../pages/LoginPage/LoginPage';
 import VerifyEmail from '../pages/VerifyEmail';
-import Layout from '../appLayout/Layout';
 import NotFound from '../pages/NotFound';
 import SignupPage from '../pages/SignUp/SignupPage';
 import Default from '../pages/Default';
 import ResetPassword from '../pages/ResetPassword';
 import Verified from '../pages/Verified';
 import CheckRestPasswordEmail from '../pages/CheckRestPasswordEmail';
+import Layout from '../AppLayout/Layout';
 const AppRoutes = () => {
   return (
     <Routes>
@@ -26,7 +26,7 @@ const AppRoutes = () => {
         <Route path="/check-email" element={<CheckRestPasswordEmail />} />
 
         <Route path="/" element={<Default />} />
-        <Route path="/deals" element={<Layout><Deals /></Layout>} />
+        <Route path="/deals" element={<Layout ><Deals /></Layout>} />
         <Route path="/resell" element={<Layout><Resell /></Layout>} />
         <Route path="/profile" element={<Layout><Profile /></Layout>} />
       
