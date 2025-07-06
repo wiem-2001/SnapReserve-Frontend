@@ -1,0 +1,12 @@
+        .ant-menu-dark.ant-menu-horizontal {
+          background: #021529 !important;
+          border-bottom: none !important;
+        }
+        .ant-menu-dark.ant-menu-horizontal > .ant-menu-item-selected {
+          background-color: #021529 !important;
+          color: #ffd72d !important;
+          border-bottom: 2px solid #ffd72d !important;
+        }
+        .ant-menu-dark.ant-menu-horizontal > .ant-menu-item:hover {
+          color: #ffd72d !important;
+        }

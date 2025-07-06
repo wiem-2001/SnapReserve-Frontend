@@ -1,11 +1,16 @@
 import './App.css'
+import { Layout } from 'antd';
+import { BrowserRouter as Router } from 'react-router-dom';
+import AppRoutes from './routes/AppRoutes';
+
+const { Content } = Layout;
 function App() {
   return (
-    <>
+   <>
+   <Router>
     
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+  <AppRoutes />
+   </Router>
     </>
   )
 }

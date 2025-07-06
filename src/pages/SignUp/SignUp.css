@@ -1,0 +1,246 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+  font-family: 'Poppins', sans-serif;
+  box-sizing: border-box;
+}
+
+.app-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+
+}
+
+.signup-container {
+  display: flex;
+  width: 1000px; 
+  height: 1300px; 
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.signup-left {
+  flex: 1;
+  padding: 60px; 
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.signup-right {
+  flex: 1;
+  background-color: #021529;
+  color: white;
+  padding: 60px; 
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  
+}
+
+h1 {
+  color: #021529;
+  font-size: 2.2rem; 
+  margin-bottom: 30px; 
+  font-weight: 700;
+}
+
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; 
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+input {
+  width: 100%;
+  padding: 16px; 
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+input:focus {
+  outline: none;
+  border-color: #021529;
+  box-shadow: 0 0 0 2px rgba(2, 21, 41, 0.2);
+}
+
+.role-selection {
+  display: flex;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.role-option {
+  flex: 1;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 0.95rem;
+}
+
+.role-option.selected {
+  border-color: #021529;
+  background-color: rgba(2, 21, 41, 0.05);
+  font-weight: 500;
+}
+
+.role-option input {
+  display: none;
+}
+
+.signup-button {
+  background-color: #021529;
+  color: #e0ca03e2;
+  padding: 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 10px;
+}
+
+.signup-button:hover {
+  background-color: #06386e;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  color: #666;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #ddd;
+}
+
+.divider span {
+  padding: 0 15px;
+}
+
+.social-buttons-signup {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+}
+
+
+.google-btn, .facebook-btn {
+  padding: 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size:1rem;
+  font-weight: 500;
+}
+
+.google-btn {
+  background: white;
+  color: #db4437;
+}
+
+.google-btn:hover {
+  background: #f5f5f5;
+}
+
+.facebook-btn {
+  background: #4267B2;
+  color: white;
+  border-color: #4267B2;
+}
+
+.facebook-btn:hover {
+  background: #3b5998;
+}
+
+.login-redirect {
+  margin-top: 25px;
+  text-align: center;
+  color: #666;
+}
+
+.login-redirect a {
+  color: #021529;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login-redirect a:hover {
+  text-decoration: underline;
+}
+
+
+.logo-header {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 30px;
+}
+
+.logo {
+  width: 60px; 
+  height: 60px; 
+  object-fit: contain;
+}
+
+.signup-right h2 {
+  color: #ffd72d;
+  font-size: 2rem; 
+  margin: 0;
+}
+
+.slogan {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 40px;
+  font-weight: 300;
+}
+
+.benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.benefit-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 1rem;
+}
+
+.check-icon {
+  color: #ffd72d;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.error-message {
+  color: red;
+  margin: 0.5rem 0 1rem 0;
+  font-weight: 400;
+}
