@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaGoogle, FaFacebook } from 'react-icons/fa';
-import './Signup.css'; 
+import './SignUp.css'; 
 import logo from '../../assets/logo.png';
 import useAuthStore from '../../stores/authStore';
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +10,7 @@ const SignupPage = () => {
     fullName: '',
     email: '',
     password: '',
-    confirmPassword: '',   // <-- new field added here
+    confirmPassword: '',  
     phone: '',
     role: 'attendee'
   });
