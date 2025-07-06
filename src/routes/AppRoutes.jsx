@@ -6,7 +6,6 @@ import Profile from '../pages/Profile';
 import Resell from '../pages/Resell';
 import LoginPage from '../pages/LoginPage/LoginPage';
 import VerifyEmail from '../pages/VerifyEmail';
-import EmptyLayout from '../appLayout/EmptyLayout';
 import Layout from '../appLayout/Layout';
 import NotFound from '../pages/NotFound';
 import SignupPage from '../pages/SignUp/SignupPage';
@@ -31,7 +30,7 @@ const AppRoutes = () => {
         <Route path="/resell" element={<Layout><Resell /></Layout>} />
         <Route path="/profile" element={<Layout><Profile /></Layout>} />
       
-        <Route path="*" element={<EmptyLayout><NotFound /></EmptyLayout>} />
+        <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };
