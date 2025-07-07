@@ -50,7 +50,7 @@ const SignupPage = () => {
       newErrors.password = 'Password must be at least 6 characters';
     }
 
-    // Confirm Password validation
+  
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = 'Please confirm your password';
     } else if (formData.confirmPassword !== formData.password) {
@@ -87,6 +87,12 @@ const SignupPage = () => {
     }
   };
 
+     const handleGoogleLogin = () => {
+      window.location.href = import.meta.env.VITE_API_URL + '/auth/google';
+    };
+     const handleFacebookLogin = () => {
+      window.location.href = import.meta.env.VITE_API_URL + '/auth/facebook';
+    };
   return (
     <div className="app-container">
       <div className="signup-container">
@@ -180,10 +186,10 @@ const SignupPage = () => {
             </div>
             
             <div className="social-buttons-signup">
-              <button type="button" className="google-btn">
+              <button type="button" className="google-btn" onClick={handleGoogleLogin}>
                 <FaGoogle  size={40}/> Continue with Google
               </button>
-              <button type="button" className="facebook-btn">
+              <button type="button" className="facebook-btn" onClick={handleFacebookLogin}>
                 <FaFacebook size={40}/> Continue with Facebook
               </button>
             </div>
