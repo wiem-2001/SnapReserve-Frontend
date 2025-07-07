@@ -8,8 +8,8 @@ import useAuthStore from '../../stores/authStore';
 import {jwtDecode} from 'jwt-decode'; 
 import './Header.css'; 
 const menuItems = [
-  { key: 'home', label: 'Home', path: '/' },
-  { key: 'events', label: 'Events', path: '/events' },
+  { key: 'home', label: 'UpComming events', path: '/' },
+  { key: 'Recommended', label: 'Recommended for You', path: '/Recommended' },
   { key: 'resell', label: 'Resell Tickets', path: '/resell' },
   { key: 'deals', label: 'Deals', path: '/deals' },
 ];
@@ -61,7 +61,7 @@ function Header() {
   );
 
   return (
-    <div style={{ backgroundColor: '#021529' }}>
+    <div style={{ backgroundColor: '#021529', }} >
       <div style={{
         display: 'flex',
         alignItems: 'center',
@@ -70,6 +70,10 @@ function Header() {
         maxWidth: 1200,
         margin: '0 auto',
         padding: '0 24px',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)', 
+        position: 'relative',
+        zIndex: 1000,
+        
       }}>
         <div style={{ 
           display: 'flex',
@@ -78,7 +82,8 @@ function Header() {
           fontSize: '1.75rem',
           fontWeight: 600,
           color: 'white',
-          cursor: 'pointer'
+          cursor: 'pointer',
+          
         }} onClick={() => navigate('/')}>
           <img src={logo} alt="Logo" style={{ height: 60, marginRight: 12 }} />
           SnapReserve
@@ -103,23 +108,27 @@ function Header() {
 
         {token   ? (
           <div>
-             <Badge count={cartCount} size="small">
-            <ShoppingCartOutlined 
-              style={{ fontSize: 30, color: 'white', cursor: 'pointer' }} 
-              onClick={() => navigate('/cart')}
-            />
-          </Badge>
-          <Dropdown overlay={userMenu} trigger={['click']}>
-              <Button type="text" style={{ color: 'white', display: 'flex', alignItems: 'center' }}>
-                <Avatar 
-                  size={40} 
-                  icon={<UserOutlined />}
-                  style={{ backgroundColor: '#021529', color: 'white' }}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <Badge count={cartCount} size="small">
+                <ShoppingCartOutlined 
+                  style={{ fontSize: 26, color: 'white', cursor: 'pointer' }} 
+                  onClick={() => navigate('/cart')}
                 />
-                <span style={{ marginLeft: 8 }}>{fullName}</span>
-                <DownOutlined style={{ marginLeft: 8 }} />
-              </Button>
-            </Dropdown>
+              </Badge>
+
+              <Dropdown overlay={userMenu} trigger={['click']}>
+                <Button type="text" style={{ color: 'white', display: 'flex', alignItems: 'center' }}>
+                  <Avatar 
+                    size={40} 
+                    icon={<UserOutlined />}
+                    style={{ backgroundColor: '#021529', color: 'white' }}
+                  />
+                  <span style={{ marginLeft: 8 }}>{fullName}</span>
+                  <DownOutlined style={{ marginLeft: 8 }} />
+                </Button>
+              </Dropdown>
+            </div>
+
           </div>
             
           ) : (

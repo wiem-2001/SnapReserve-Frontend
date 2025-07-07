@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Deals from '../pages/Deals';
 import ForgetPassword from '../pages/ForgetPassword';
-import Profile from '../pages/Profile';
+import Profile from '../pages/Profile/Profile';
 import Resell from '../pages/Resell';
 import LoginPage from '../pages/LoginPage/LoginPage';
 import VerifyEmail from '../pages/VerifyEmail';

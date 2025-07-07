@@ -8,8 +8,7 @@ function App() {
   return (
    <>
    <Router>
-    
-  <AppRoutes />
+    <AppRoutes />
    </Router>
     </>
   )
