@@ -8,11 +8,19 @@ import LoginPage from '../pages/LoginPage/LoginPage';
 import VerifyEmail from '../pages/VerifyEmail';
 import NotFound from '../pages/NotFound';
 import SignupPage from '../pages/SignUp/SignupPage';
-import Default from '../pages/Default';
 import ResetPassword from '../pages/ResetPassword';
 import Verified from '../pages/Verified';
 import CheckRestPasswordEmail from '../pages/CheckRestPasswordEmail';
 import Layout from '../AppLayout/Layout';
+import Events from '../pages/Events.jsx';
+import ManageEvents from '../pages/ManageEvents.jsx';
+import PurchasedTickets from '../pages/PurchasedTickets.jsx';
+import Preferences from '../pages/Preferences.jsx';
+import Notifications from '../pages/Notifications.jsx';
+import AccountSettings from '../pages/AccountSettings.jsx';
+import CreateEvent from '../pages/CreateEvent/CreateEvent.jsx';
+import OrganizerAnalytics from '../pages/OrganizerAnalytics.jsx';
+import PaymentInfo from '../pages/PaymentInfo.jsx';
 const AppRoutes = () => {
   return (
     <Routes>
@@ -25,11 +33,19 @@ const AppRoutes = () => {
         <Route path="/verified" element={<Verified />} />
         <Route path="/check-email" element={<CheckRestPasswordEmail />} />
 
-        <Route path="/" element={<Default />} />
+        <Route path="/" element={<Events />} />
         <Route path="/deals" element={<Layout ><Deals /></Layout>} />
         <Route path="/resell" element={<Layout><Resell /></Layout>} />
         <Route path="/profile" element={<Layout><Profile /></Layout>} />
-      
+        <Route path="/manage-events" element={<ManageEvents/>} />
+        <Route path="/purchased-tickets" element={<PurchasedTickets/>} />
+        <Route path="/preferences" element={<Preferences/>} />
+        <Route path="/payment-info" element={<PaymentInfo/>} />
+        <Route path="/notifications" element={<Notifications/>} />
+        <Route path="/account-settings" element={<AccountSettings/>} />
+        <Route path="/create-event" element={<CreateEvent/>} />
+        <Route path="/analytics" element={<OrganizerAnalytics/>} />
+        
         <Route path="*" element={<NotFound />} />
     </Routes>
   );

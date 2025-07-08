@@ -1,11 +1,17 @@
 import React, { useState } from 'react';
 import { Card, Button } from 'antd';
-import { 
-  CalendarOutlined, 
-  EnvironmentOutlined,
-  HeartOutlined,
-  HeartFilled
-} from '@ant-design/icons';
+import { CalendarOutlined, EnvironmentOutlined, HeartOutlined, HeartFilled } from '@ant-design/icons';
+
+const CountdownTimer = () => (
+  <div style={{ textAlign: 'center' }}>
+    <div style={{ fontSize: 14, marginBottom: 8, fontWeight: 'bold' }}>TIME REMAINING</div>
+    <div style={{ display: 'flex', justifyContent: 'center', gap: 8, fontSize: 18, fontWeight: 'bold' }}>
+      <span>5d</span>
+      <span>12h</span>
+      <span>30m</span>
+    </div>
+  </div>
+);
 
 const EventCard = ({ event }) => {
   const [saved, setSaved] = useState(false);
@@ -150,52 +156,4 @@ const EventCard = ({ event }) => {
   );
 };
 
-
-const CountdownTimer = () => {
-  return (
-    <div style={{ textAlign: 'center' }}>
-      <div style={{ fontSize: 14, marginBottom: 8, fontWeight: 'bold' }}>TIME REMAINING</div>
-      <div style={{ 
-        display: 'flex',
-        justifyContent: 'center',
-        gap: 8,
-        fontSize: 18,
-        fontWeight: 'bold'
-      }}>
-        <span>5d</span>
-        <span>12h</span>
-        <span>30m</span>
-      </div>
-    </div>
-  );
-};
-
-
-const EventList = () => {
-  const events = [
-    {
-      id: 1,
-      title: 'Wonder Girls 2010 World Tour',
-      date: 'June 15, 2023',
-      location: 'San Francisco',
-      priceRange: [89],
-      image: 'https://images.unsplash.com/photo-1501612780327-45045538702b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
-    }
-  
-  ];
-
-  return (
-    <div style={{ 
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-      gap: 24,
-      padding: 24
-    }}>
-      {events.map(event => (
-        <EventCard key={event.id} event={event} />
-      ))}
-    </div>
-  );
-};
-
-export default EventList;
+export default EventCard;

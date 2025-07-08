@@ -78,55 +78,75 @@ function Profile({ user }) {
             </Upload>
             </div>
             <Form
-              form={form}
-              layout="vertical"
-              initialValues={{
-                fullName: user?.fullName || '',
-                phone: user?.phone || '',
-                gender: user?.gender || '',
-                dob: user?.dob ? moment(user.dob) : null,
-              }}
-              onFinish={handleUpdate}
-            >
-            <Form.Item label="Full Name" name="fullName" className={isEditing ? 'custom-input' : ''}>
-              <Input disabled={!isEditing} />
-            </Form.Item>
+                form={form}
+                layout="vertical"
+                initialValues={{
+                  fullName: user?.fullName || '',
+                  phone: user?.phone || '',
+                  gender: user?.gender || '',
+                  dob: user?.dob ? moment(user.dob) : null,
+                  email: user?.email || '',
+                }}
+                onFinish={handleUpdate}
+              >
+              <Form.Item label="Full Name" name="fullName" className={isEditing ? 'custom-input' : ''}>
+                <Input disabled={!isEditing} />
+              </Form.Item>
 
-            <Form.Item label="Phone Number" name="phone" className={isEditing ? 'custom-input' : ''}>
-              <Input disabled={!isEditing} />
-            </Form.Item>
+              <Form.Item label="Phone Number" name="phone" className={isEditing ? 'custom-input' : ''}>
+                <Input disabled={!isEditing} />
+              </Form.Item>
 
-            <Form.Item label="Gender" name="gender" className={isEditing ? 'custom-input' : ''}>
-              <Select disabled={!isEditing} >
-                <Option value="male">Male</Option>
-                <Option value="female">Female</Option>
-                <Option value="other">Other</Option>
-              </Select>
-            </Form.Item>
+              <Form.Item label="Email" name="email">
+              <p style={{display:'flex',color:'gray',fontWeight:'lighter',marginTop:'0px'}}>this field can not be modified</p>
+                <Input disabled />
+              </Form.Item>
 
-            <Form.Item
-              label="Date of Birth"
-              name="dob"
-              className={isEditing ? 'custom-datepicker' : ''}
-            >
-              <DatePicker disabled={!isEditing} style={{ width: '100%' }} />
-            </Form.Item>
+              {user?.role == 'organizer' && (
+                <>
+                  <Form.Item label="Gender" name="gender" className={isEditing ? 'custom-input' : ''}>
+                    <Select disabled={!isEditing}>
+                      <Option value="male">Male</Option>
+                      <Option value="female">Female</Option>
+                      <Option value="other">Other</Option>
+                    </Select>
+                  </Form.Item>
 
-            <Form.Item>
-              {isEditing ? (
-                <Space>
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    shape="round"
-                    style={{
-                      backgroundColor: '#ffd72d',
-                      color: '#021529',
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    Save
-                  </Button>
+                  <Form.Item label="Date of Birth" name="dob" className={isEditing ? 'custom-datepicker' : ''}>
+                    <DatePicker disabled={!isEditing} style={{ width: '100%' }} />
+                  </Form.Item>
+                </>
+              )}
+
+              <Form.Item>
+                {isEditing ? (
+                  <Space>
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      shape="round"
+                      style={{
+                        backgroundColor: '#ffd72d',
+                        color: '#021529',
+                        fontWeight: 'bold',
+                      }}
+                    >
+                      Save
+                    </Button>
+                    <Button
+                      shape="round"
+                      style={{
+                        backgroundColor: '#021529',
+                        borderColor: 'white',
+                        color: 'white',
+                        fontWeight: 'bold',
+                      }}
+                      onClick={() => setIsEditing(false)}
+                    >
+                      Cancel
+                    </Button>
+                  </Space>
+                ) : (
                   <Button
                     shape="round"
                     style={{
@@ -135,32 +155,18 @@ function Profile({ user }) {
                       color: 'white',
                       fontWeight: 'bold',
                     }}
-                    onClick={() => setIsEditing(false)}
+                    onClick={() => setIsEditing(true)}
                   >
-                    Cancel
+                    Update Information
                   </Button>
-                </Space>
-              ) : (
-                <Button
-                  shape="round"
-                  style={{
-                    backgroundColor: '#021529',
-                    borderColor: 'white',
-                    color: 'white',
-                    fontWeight: 'bold',
-                  }}
-                  onClick={() => setIsEditing(true)}
-                >
-                  Update Information
-                </Button>
-              )}
-            </Form.Item>
-          </Form>
+                )}
+              </Form.Item>
+            </Form>
+
           <Divider />
           <Title level={4} style={{ textAlign: 'left' }}>
             Update Password
           </Title>
-
          <Form
             form={form}
             layout="vertical"
@@ -192,7 +198,6 @@ function Profile({ user }) {
                     update Password
                   </Button>
                 </Space>
-              
             </Form.Item>
           </Form>
         </div>

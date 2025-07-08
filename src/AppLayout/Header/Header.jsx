@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Menu, Dropdown, Button, Space, Avatar, Badge } from 'antd';
-import { ShoppingCartOutlined, UserOutlined, DownOutlined } from '@ant-design/icons';
+import { LogoutOutlined , UserOutlined, DownOutlined  } from '@ant-design/icons';
 import logo from '../../assets/logo.png';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
@@ -15,24 +15,28 @@ const menuItems = [
 ];
 
 function Header() {
-  const cartCount = 3;
+
   const navigate = useNavigate();
   const location = useLocation();
   const [current, setCurrent] = useState(location.pathname.substring(1) || 'home');
   const token = useAuthStore(state => state.token); 
   const logout = useAuthStore(state => state.logout);
   const [fullName, setFullName] = useState(null);
+  const [userRole, setUserRole] = useState(null);
     useEffect(() => {
         if (token) {
           try {
             const decoded = jwtDecode(token);
             setFullName(decoded.fullName || decoded.email);
+            setUserRole(decoded.role || null);
           } catch (err) {
             console.error('Invalid token:', err);
             setFullName(null);
+            setUserRole(null);
           }
         } else {
           setFullName(null);
+          setUserRole(null);
         }
       }, [token]);
       const onMenuClick = (e) => {
@@ -45,20 +49,49 @@ function Header() {
         console.log('User data:', fullName);
       }, [token]);
 
-  const userMenu = (
-    <Menu onClick={({ key }) => {
+      const userMenu = (
+      <Menu
+    onClick={({ key }) => {
       if (key === 'logout') {
         logout();
         navigate('/login');
       } else {
         navigate(`/${key}`);
       }
-    }}>
-      <Menu.Item key="profile">My Profile</Menu.Item>
-      <Menu.Item key="tickets">My Tickets</Menu.Item>
-      <Menu.Item key="logout">Logout</Menu.Item>
-    </Menu>
-  );
+    }}
+  >
+    <Menu.Item key="profile" icon={<UserOutlined style={{ color: '#021529' }} />}>
+      My Profile
+    </Menu.Item>
+
+ {userRole == 'attendee' && (      <Menu.Item key="tickets" icon={
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#021529"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        style={{ verticalAlign: 'middle' }}
+      >
+        <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
+        <path d="M13 5v2" />
+        <path d="M13 17v2" />
+        <path d="M13 11v2" />
+      </svg>
+    }>
+      Purchased Tickets
+    </Menu.Item>
+         )}
+
+    <Menu.Item key="logout" icon={<LogoutOutlined  style={{ color: '#021529' }} />}>
+      Logout
+    </Menu.Item>
+  </Menu>
+      );
 
   return (
     <div style={{ backgroundColor: '#021529', }} >
@@ -89,7 +122,7 @@ function Header() {
           SnapReserve
         </div>
 
-        <Menu 
+      {userRole !== 'organizer' && (        <Menu 
           onClick={onMenuClick}
           selectedKeys={[current]}
           theme="dark"
@@ -102,20 +135,15 @@ function Header() {
             borderBottom: 'none',
           }}
         />
+        )}
 
         <Space size="large" style={{ color: 'white' }}>
-         
-
         {token   ? (
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              <Badge count={cartCount} size="small">
-                <ShoppingCartOutlined 
-                  style={{ fontSize: 26, color: 'white', cursor: 'pointer' }} 
-                  onClick={() => navigate('/cart')}
-                />
-              </Badge>
-
+           
+                
+              
               <Dropdown overlay={userMenu} trigger={['click']}>
                 <Button type="text" style={{ color: 'white', display: 'flex', alignItems: 'center' }}>
                   <Avatar 
@@ -169,7 +197,6 @@ function Header() {
               >
                 Sign In
               </Button>
-           
 
             </Space>
           )}

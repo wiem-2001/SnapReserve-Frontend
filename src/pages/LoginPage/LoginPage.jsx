@@ -4,7 +4,7 @@
   import logo from '../../assets/logo.png'; 
   import useAuthStore from '../../stores/authStore';
   import { useNavigate } from 'react-router-dom';
-
+  import { jwtDecode } from 'jwt-decode';
   const LoginPage = () => {
     const signin = useAuthStore(state => state.signin);
     const navigate = useNavigate();
@@ -23,14 +23,20 @@
     };
 
     const handleSubmit = async (e) => {
-      e.preventDefault();
-      try {
-        const token = await signin(formData);
-        navigate('/');
-      } catch (error) {
-          setError(error.response?.data?.message);
-      }
-    };
+  e.preventDefault();
+  try {
+    const token = await signin(formData);
+    const decoded = jwtDecode(token);
+    const role = decoded.role || decoded?.user?.role; 
+    if (role === 'organizer') {
+      navigate('/manage-events');
+    } else {
+      navigate('/');
+    }
+  } catch (error) {
+    setError(error.response?.data?.message);
+  }
+};
 
     const handleGoogleLogin = () => {
       window.location.href = import.meta.env.VITE_API_URL + '/auth/google';
