@@ -1,6 +1,6 @@
 import React from 'react'
 import Header from '../AppLayout/Header/Header'
-import AppFooter from '../ZppLayout/Footer'
+import AppFooter from '../AppLayout/Footer'
 import EventsList from '../components/EventList/EventList'
 import EventDetails from '../pages/EventDetails/EventDetails'
 function Events() {
