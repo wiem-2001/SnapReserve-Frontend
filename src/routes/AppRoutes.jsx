@@ -12,7 +12,7 @@ import ResetPassword from '../pages/ResetPassword';
 import Verified from '../pages/Verified';
 import CheckRestPasswordEmail from '../pages/CheckRestPasswordEmail';
 import Layout from '../AppLayout/Layout';
-import Events from '../pages/Events.JSX';
+import Events from '../pages/Events.jsx';
 import ManageEvents from '../pages/ManageEvents.jsx';
 import PurchasedTickets from '../pages/PurchasedTickets.jsx';
 import Preferences from '../pages/Preferences.jsx';
