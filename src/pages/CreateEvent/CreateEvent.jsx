@@ -12,9 +12,9 @@ import {
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import '../Profile/Profile.css';
-import Header from '../../appLayout/Header/Header';
+import Header from '../../AppLayout/Header/Header';
 import SidebarMenu from '../../AppLayout/SidebarMenu/SidebarMenu';
-import AppFooter from '../../appLayout/Footer';
+import AppFooter from '../../AppLayout/Footer';
 import { Layout } from 'antd';
 const { TextArea } = Input;
 const { Option } = Select;
