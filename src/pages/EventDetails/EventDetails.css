@@ -79,10 +79,11 @@
 
 
 .event-description-block {
-  padding: 30px 40px 10px 40px;
+  padding: 0px 40px 0px 40px;
   color: #021529;
   font-size: 1rem;
   line-height: 1.6;
+  text-align: left;
 }
 
 
@@ -94,6 +95,7 @@
 .event-calendar h2 {
   margin-bottom: 20px;
   font-weight: 600;
+  text-align: left;
 }
 
 
@@ -110,7 +112,9 @@
   color: #021529;
 }
 
-
+.event-pricing{
+  padding: 0px 40px 0px 40px;  
+}
 
 .event-purchase .ant-btn-primary {
   background-color: #021529;

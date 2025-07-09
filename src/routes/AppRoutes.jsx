@@ -12,7 +12,7 @@ import ResetPassword from '../pages/ResetPassword';
 import Verified from '../pages/Verified';
 import CheckRestPasswordEmail from '../pages/CheckRestPasswordEmail';
 import Layout from '../AppLayout/Layout';
-import Events from '../pages/Events.jsx';
+import Events from '../pages/Events';
 import ManageEvents from '../pages/ManageEvents.jsx';
 import PurchasedTickets from '../pages/PurchasedTickets.jsx';
 import Preferences from '../pages/Preferences.jsx';
@@ -21,6 +21,7 @@ import AccountSettings from '../pages/AccountSettings.jsx';
 import CreateEvent from '../pages/CreateEvent/CreateEvent.jsx';
 import OrganizerAnalytics from '../pages/OrganizerAnalytics.jsx';
 import PaymentInfo from '../pages/PaymentInfo.jsx';
+import EventDetails from '../pages/EventDetails/EventDetails.jsx';
 const AppRoutes = () => {
   return (
     <Routes>
@@ -45,7 +46,8 @@ const AppRoutes = () => {
         <Route path="/account-settings" element={<AccountSettings/>} />
         <Route path="/create-event" element={<CreateEvent/>} />
         <Route path="/analytics" element={<OrganizerAnalytics/>} />
-        
+        <Route path="/event-details/:id" element={<Layout><EventDetails /></Layout>} />
+
         <Route path="*" element={<NotFound />} />
     </Routes>
   );

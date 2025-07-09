@@ -44,10 +44,6 @@ function Header() {
         const item = menuItems.find(m => m.key === e.key);
         if (item) navigate(item.path);
       };
-      useEffect(() => {
-        console.log('Auth token:', token);
-        console.log('User data:', fullName);
-      }, [token]);
 
       const userMenu = (
       <Menu
