@@ -1,26 +1,48 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Button, Tooltip, InputNumber, Checkbox } from 'antd';
-import { EnvironmentOutlined, CalendarOutlined, TagOutlined, HeartOutlined, HeartFilled } from '@ant-design/icons';
+import { Calendar, Button, Tooltip, InputNumber, Checkbox, message, Modal } from 'antd';
+import { 
+  EnvironmentOutlined, 
+  CalendarOutlined, 
+  TagOutlined, 
+  HeartOutlined, 
+  HeartFilled, 
+  EditOutlined,
+  DeleteOutlined 
+} from '@ant-design/icons';
 import './EventDetails.css';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import useEventStore from '../../stores/eventStore';
 import dayjs from 'dayjs';
+import useAuthStore from '../../stores/authStore';
+import ConfirmModal from '../../components/ConfirmModal';
 
 const EventDetails = () => {
   const { id } = useParams();
-  const { event, fetchEvent, loading, error } = useEventStore();
-
+  const navigate = useNavigate();
+  const { event, fetchEvent, loading, error, deleteEvent } = useEventStore();
+  const [showConfirm, setShowConfirm] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTierIds, setSelectedTierIds] = useState([]);
-  const [calendarValue, setCalendarValue] = useState(dayjs()); // Controls calendar's visible month/year
+  const [calendarValue, setCalendarValue] = useState(dayjs()); 
   const [quantities, setQuantities] = useState({});
+  const { user: authuser, getMe } = useAuthStore();
 
   useEffect(() => {
     if (id) fetchEvent(id);
   }, [id, fetchEvent]);
 
-  // Process event data when loaded: set pricing tiers & quantities
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        await getMe();
+      } catch(err) {
+        message.error(err.response?.data?.message || 'Failed to load user data');
+      }
+    };
+    fetchUser();
+  }, []);
+
   useEffect(() => {
     if (event?.pricingTiers?.length) {
       const allIds = event.pricingTiers.map(t => t.id);
@@ -34,13 +56,11 @@ const EventDetails = () => {
     }
   }, [event]);
 
-  // Available dates formatted with dayjs
   const availableDates = event?.dates?.map(d => ({
     dayjsDate: dayjs(d.date).startOf('day'),
     location: d.location,
   })) || [];
 
-  // Find closest upcoming date (today or later)
   const findClosestUpcomingDate = () => {
     const today = dayjs().startOf('day');
     const futureDates = availableDates.filter(d => d.dayjsDate.isSame(today) || d.dayjsDate.isAfter(today));
@@ -49,7 +69,6 @@ const EventDetails = () => {
     return futureDates[0];
   };
 
-  // When availableDates changes (i.e., event loaded), set default selectedDate and calendarValue
   useEffect(() => {
     if (availableDates.length === 0) {
       setSelectedDate(null);
@@ -60,7 +79,7 @@ const EventDetails = () => {
     const closestDate = findClosestUpcomingDate() || availableDates[0];
     setSelectedDate(closestDate);
     setCalendarValue(closestDate.dayjsDate);
-  }, [event]); // run when event changes (and availableDates too)
+  }, [event]); 
 
   const disabledDate = current => {
     if (!current) return true;
@@ -80,7 +99,6 @@ const EventDetails = () => {
     else setSelectedDate(null);
   };
 
-  // Keep calendar view month/year in sync if user navigates months
   const onPanelChange = (value) => {
     setCalendarValue(value);
   };
@@ -109,6 +127,23 @@ const EventDetails = () => {
     }));
   };
 
+  const handleDeleteClick = (e) => {
+    e.stopPropagation();
+    setShowConfirm(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await deleteEvent(id);
+      message.success('Event deleted successfully');
+      navigate('/manage-events');
+    } catch (error) {
+      message.error(error.response?.data?.message || 'Failed to delete event');
+    } finally {
+      setShowConfirm(false);
+    }
+  };
+
   const totalPrice = selectedTierIds.reduce((sum, tierId) => {
     const tier = event.pricingTiers.find(t => t.id === tierId);
     const qty = quantities[tierId] || 0;
@@ -124,7 +159,6 @@ const EventDetails = () => {
       <div
         className="event-header"
         style={{
-          backgroundImage: `url(${event.image})`,
           position: 'relative',
           borderRadius: 8,
           overflow: 'hidden',
@@ -132,6 +166,16 @@ const EventDetails = () => {
           marginBottom: 24,
         }}
       >
+        <img
+          src={`${import.meta.env.VITE_API_URL}${event.image}`}
+          alt="Event"
+          crossOrigin="anonymous"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+          }}
+        />
         <div
           className="event-overlay"
           style={{
@@ -164,14 +208,49 @@ const EventDetails = () => {
             </div>
           </div>
         </div>
-        <Tooltip title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}>
-          <Button
-            type="text"
-            icon={isFavorited ? <HeartFilled style={{ color: '#ff4d4f', fontSize: 24 }} /> : <HeartOutlined style={{ fontSize: 24 }} />}
-            onClick={toggleFavorite}
-            style={{ position: 'absolute', top: 16, right: 16 }}
-          />
-        </Tooltip>
+
+        {authuser?.user?.role === "attendee" ? (
+          <Tooltip title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}>
+            <Button
+              type="text"
+              icon={isFavorited ? <HeartFilled style={{ color: '#ff4d4f', fontSize: 24 }} /> : <HeartOutlined style={{ fontSize: 24 }} />}
+              onClick={toggleFavorite}
+              style={{ position: 'absolute', top: 16, right: 16 }}
+            />
+          </Tooltip>
+        ) : (
+          <div style={{ 
+            position: 'absolute',
+            top: 16,
+            right: 16,
+            zIndex: 2,
+            display: 'flex',
+            flexDirection: 'row',
+            gap: 8,
+          }}>
+            <Button
+              type="text"
+              icon={<EditOutlined style={{ color: '#ffd72d' }} />}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/edit-event/${id}`);
+              }}
+              style={{
+                fontSize: 20,
+                backgroundColor: '#021529'
+              }}
+            />
+            <Button
+              type="text"
+              icon={<DeleteOutlined style={{ color: '#ffd72d' }} />}
+              onClick={handleDeleteClick}
+              style={{
+                fontSize: 20,
+                backgroundColor: '#021529'
+              }}
+            />
+          </div>
+        )}
       </div>
 
       <div className="event-description-block" style={{ marginBottom: 24, textAlign: 'left' }}>
@@ -241,6 +320,13 @@ const EventDetails = () => {
           Buy Ticket
         </Button>
       </div>
+
+      <ConfirmModal
+        visible={showConfirm}
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setShowConfirm(false)}
+        title="Are you sure you want to delete this event?"
+      />
     </div>
   );
 };

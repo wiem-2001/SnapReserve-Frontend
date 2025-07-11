@@ -22,6 +22,8 @@ import CreateEvent from '../pages/CreateEvent/CreateEvent.jsx';
 import OrganizerAnalytics from '../pages/OrganizerAnalytics.jsx';
 import PaymentInfo from '../pages/PaymentInfo.jsx';
 import EventDetails from '../pages/EventDetails/EventDetails.jsx';
+import EditEvent from '../pages/EditEvent.jsx';
+import OrganizerEventDetails from '../pages/OrganizerEventDetails.jsx';
 const AppRoutes = () => {
   return (
     <Routes>
@@ -45,9 +47,11 @@ const AppRoutes = () => {
         <Route path="/notifications" element={<Notifications/>} />
         <Route path="/account-settings" element={<AccountSettings/>} />
         <Route path="/create-event" element={<CreateEvent/>} />
+        <Route path="/edit-event/:id" element={<EditEvent/>} />
         <Route path="/analytics" element={<OrganizerAnalytics/>} />
         <Route path="/event-details/:id" element={<Layout><EventDetails /></Layout>} />
-
+        <Route path="/organizer-event-details/:id" element={<Layout><OrganizerEventDetails /></Layout>} />
+        
         <Route path="*" element={<NotFound />} />
     </Routes>
   );

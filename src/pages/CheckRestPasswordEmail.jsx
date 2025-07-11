@@ -1,9 +1,11 @@
 import React from 'react';
-
+import { MailCheck } from 'lucide-react';
 const CheckResetPasswordEmail = () => {
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white text-gray-800 px-4" style={{marginTop: '100px'}}>
+      
       <h1>Check Your Email</h1>
+      
       <p>
         If an account is associated with the email you provided, a password reset link has been sent.
         <br />

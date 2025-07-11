@@ -7,16 +7,20 @@ import { useNavigate } from 'react-router-dom';
 
 const ForgetPasswordPage = () => {
   const [email, setEmail] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
   const forgetPassword = useAuthStore(state => state.forgetPassword);
   const navigate = useNavigate();
 
   const handleForgetPassword = async (e) => {
     e.preventDefault(); 
+    setErrorMessage('');
     try {
       await forgetPassword({ email });
       navigate('/check-email');
     } catch (err) {
       const msg = err?.response?.data?.message || err?.message || "An error occurred.";
+      setErrorMessage(msg);
     }
   };
 
@@ -34,6 +38,12 @@ const ForgetPasswordPage = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
+            {errorMessage && (
+              <div className="error-message" style={{ color: 'red', marginBottom: '10px' }}>
+                {errorMessage}
+              </div>
+            )}
+
             <button type="submit" className="login-button">
               Send Reset Link
             </button>

@@ -1,6 +1,6 @@
-/* Profile.css */
 .custom-input input {
   transition: border 0.3s ease;
+  
 }
 
 .custom-input input:focus,
