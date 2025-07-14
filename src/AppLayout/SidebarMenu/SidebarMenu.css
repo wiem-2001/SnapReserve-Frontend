@@ -1,0 +1,35 @@
+
+.sidebar-menu .ant-menu-item {
+  background-color: white !important;
+}
+
+.sidebar-menu{ 
+margin-top: 20px;
+}
+.sidebar-menu .sidebar-icon,
+.sidebar-menu .sidebar-label {
+  color: #021529 !important;
+}
+.sidebar-menu .sidebar-icon svg {
+  width: 20px;
+  height: 19px;
+}
+
+
+.sidebar-menu .ant-menu-item-selected {
+  background-color: #021529 !important;
+}
+
+.sidebar-menu .ant-menu-item-selected .sidebar-icon,
+.sidebar-menu .ant-menu-item-selected .sidebar-label {
+  color: #ffd72d !important;
+}
+
+.sidebar-menu .ant-menu-submenu-arrow {
+  color: #021529 !important;
+}
+
+
+.sidebar-menu .ant-menu-item-selected .ant-menu-submenu-arrow {
+  color: #ffd72d !important;
+}

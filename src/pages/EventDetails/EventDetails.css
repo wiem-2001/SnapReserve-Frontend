@@ -1,0 +1,265 @@
+
+.event-details {
+  display: flex;
+  flex-direction: column;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #021529;
+  max-width: 900px;
+  margin: 0 auto;
+  background: #fff;
+}
+
+.event-header {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  height: 400px;
+  display: flex;
+  align-items: center;
+}
+
+
+.event-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right, 
+    rgba(2, 21, 41, 0.85) 0%, 
+    rgba(2, 21, 41, 0.6) 30%, 
+    rgba(2, 21, 41, 0.2) 70%, 
+    transparent 100%
+  );
+  display: flex;
+  align-items: center;
+  padding: 0 40px;
+}
+
+
+.event-info {
+  max-width: 450px;
+  color: #ffd72d;
+  z-index: 2;
+}
+
+.event-title {
+  font-size: 2.8rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #ffd72d;
+}
+
+
+.event-meta {
+  display: flex;
+  gap: 25px;
+  font-size: 1.1rem;
+  color: #ffd72d;
+  margin-bottom: 0;
+}
+
+.event-meta > div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+
+.favorite-btn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 1.6rem;
+  color: #ffd72d;
+  z-index: 2;
+}
+
+.favorite-btn:hover {
+  color: #ff4d4f !important;
+}
+
+
+.event-description-block {
+  padding: 0px 40px 0px 40px;
+  color: #021529;
+  font-size: 1rem;
+  line-height: 1.6;
+  text-align: left;
+}
+
+
+.event-calendar {
+  padding: 25px 40px 15px 40px;
+  border-top: 1px solid #ddd;
+}
+
+.event-calendar h2 {
+  margin-bottom: 20px;
+  font-weight: 600;
+  text-align: left;
+}
+
+
+.event-purchase {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 40px 40px 40px;
+  border-top: 1px solid #ddd;
+}
+
+.event-price {
+  font-size: 2rem;
+  color: #021529;
+}
+
+.event-pricing{
+  padding: 0px 40px 0px 40px;  
+}
+
+.event-purchase .ant-btn-primary {
+  background-color: #021529;
+  border-color: #021529;
+  color: #ffd72d;
+  font-weight: 600;
+  padding: 10px 30px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.event-purchase .ant-btn-primary:hover,
+.event-purchase .ant-btn-primary:focus {
+  background-color: #03315c;
+  border-color: #03315c;
+  color: #ffd72d;
+}
+
+.price-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 1rem;
+  color: #021529;
+}
+
+.event-price {
+  font-size: 2rem;
+  color: #021529;
+}
+
+.buy-ticket-btn {
+  background-color: #021529;
+  border-color: #021529;
+  color: #ffd72d;
+  font-weight: 600;
+  padding: 10px 30px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.buy-ticket-btn:hover,
+.buy-ticket-btn:focus {
+  background-color: #03315c;
+  border-color: #03315c;
+  color: #ffd72d;
+}
+
+
+.event-calendar .ant-picker-cell-selected .ant-picker-cell-inner,
+.event-calendar .ant-picker-cell-range-start .ant-picker-cell-inner,
+.event-calendar .ant-picker-cell-range-end .ant-picker-cell-inner {
+  background-color: #ffd72d !important;
+  color: #021529 !important;
+  border-radius: 4px;
+}
+
+
+.event-calendar .ant-picker-cell-inner:hover {
+  background-color: #ffe66c;
+  color: #021529;
+}
+
+
+.event-calendar .ant-picker-cell-today .ant-picker-cell-inner::before {
+  border: 1px solid #ffd72d !important;
+}
+
+
+.event-calendar .ant-picker-header button,
+.event-calendar .ant-picker-header-view {
+  color: #ffd72d;
+}
+
+
+.event-calendar .ant-picker-header button:hover {
+  color: #ffe66c;
+}
+
+
+.event-calendar .ant-picker-cell-focused .ant-picker-cell-inner {
+  background-color: #fff7c2;
+  color: #021529;
+}
+
+.event-calendar .ant-picker-panel
+  .ant-picker-cell-focused
+  .ant-picker-cell-inner {
+  border: 1px solid #021529 !important;
+  border-radius: 4px;
+}
+
+
+.event-calendar .ant-picker-cell-inner:focus {
+  outline: none;
+  border: 1px solid #021529 !important;
+}
+
+.event-quantity {
+  padding: 15px 40px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+  color: #021529;
+  margin-bottom: 1rem;
+}
+
+.event-quantity label {
+  font-weight: 500;
+}
+
+.event-quantity .ant-input-number {
+  border-color: #021529;
+}
+
+.event-quantity .ant-input-number-focused {
+  border-color: #021529;
+  box-shadow: 0 0 0 2px rgba(2, 21, 41, 0.2);
+}
+.event-pricing h2 {
+  color: #021529;
+  margin-bottom: 16px;
+  font-weight: 700;
+}
+
+.event-pricing .ant-checkbox-wrapper:hover span {
+  color: #021529 !important;
+}
+
+.event-pricing .ant-checkbox-checked .ant-checkbox-inner {
+  border-color: #021529;
+  background-color: #021529;
+}
+
+.event-pricing .ant-checkbox-checked .ant-checkbox-inner::after {
+  border-color: #ffd72d;
+}
+
+.event-pricing div[style*="border: 1px solid"] {
+  transition: box-shadow 0.3s ease;
+}
+
+.event-pricing div[style*="border: 1px solid"]:hover {
+  box-shadow: 0 0 8px rgba(2, 21, 41, 0.3);
+  border-color: #021529 !important;
+  background-color: #fff;
+}

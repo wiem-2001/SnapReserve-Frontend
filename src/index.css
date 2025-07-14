@@ -1,0 +1,15 @@
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-text {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  background: linear-gradient(90deg, #FF3B8B, #8B00FF);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

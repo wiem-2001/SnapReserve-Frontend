@@ -1,0 +1,31 @@
+.custom-input input {
+  transition: border 0.3s ease;
+  
+}
+
+.custom-input input:focus,
+.custom-input input:hover {
+  border: 1px solid #021529 !important;
+  box-shadow: none !important;
+}
+.custom-input input,
+.custom-input .ant-select-selector,
+.custom-input .ant-picker {
+  transition: border 0.3s ease;
+}
+
+.custom-input input:focus,
+.custom-input input:hover,
+.custom-input .ant-select-selector:hover,
+.custom-input .ant-select-focused .ant-select-selector,
+.custom-input .ant-picker:hover,
+.custom-input .ant-picker-focused {
+  border: 1px solid #021529 !important;
+  box-shadow: none !important;
+}
+
+.custom-datepicker .ant-picker:hover,
+.custom-datepicker .ant-picker-focused {
+  border: 1px solid #021529 !important;
+  box-shadow: none !important;
+}

@@ -1,0 +1,175 @@
+
+.payment-success-container {
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #021529;
+  background: #f9fbff;
+}
+
+.icon-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.success-icon {
+  color: #52c41a;
+  font-size: 72px;
+  text-shadow: 0 0 8px #52c41a;
+}
+
+.main-title {
+  text-align: center;
+  margin-bottom: 8px;
+  color: #021529;
+  font-weight: 700;
+}
+
+.section-title {
+  margin-bottom: 24px;
+  color: #021529;
+  font-weight: bolder;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 50px;
+  align-items: center;
+}
+
+.button-row {
+  margin-bottom: 40px;
+  justify-content: center;
+}
+
+.backHome-button {
+  background-color: #021529;
+  color: #ffd72d;
+  padding: 16px 32px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 140px;
+}
+
+.backHome-button:hover {
+background-color: #06386e !important;
+  color: #ffd72d !important;
+}
+
+.viewTicket-button {
+  background-color: #ffd72d;
+  color: #021529;
+  padding: 16px 32px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 140px;
+}
+
+.viewTicket-button:hover {
+  background-color: #e6c61f !important ;
+  color: #021529 !important;
+}
+
+.order-card {
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  background: white;
+}
+
+.ticket-items {
+  width: 100%;
+}
+
+.ticket-item {
+  background: white;
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: default;
+  user-select: none;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.ticket-item:hover {
+  box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+  transform: scale(1.03);
+}
+
+.item-name {
+  font-size: 16px;
+  color: #021529;
+  font-weight: 600;
+}
+
+.item-quantity {
+  background-color: #021529;
+  color: #ffd72d;
+  font-weight: 700;
+  margin-left: 10px;
+  font-size: 0.9rem;
+  padding: 0 8px;
+  border-radius: 12px;
+}
+
+.item-price {
+  font-size: 16px;
+  font-weight: 700;
+  color: #021529;
+}
+
+.section-divider {
+  margin: 24px 0;
+  border-top: 2px solid #021529;
+  opacity: 0.2;
+}
+
+.total-row {
+  margin-bottom: 24px;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.total-label {
+  font-size: 18px;
+  color: #021529;
+  font-weight: 700;
+}
+
+.total-amount {
+  color: #ffd72d;
+  font-family: 'Segoe UI Black', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+}
+
+
+.order-status {
+  display: flex !important;       
+  flex-direction: column !important; 
+  align-items: flex-start !important; 
+  width: 100%;                
+  gap: 1rem;     
+  margin-left: 20px;             
+}
+
+.status-text-simple {
+  margin: 0 0 1em 0;
+  color: #021529;
+}
+
+.highlighted-data {
+  background-color: white; 
+  color: #021529;           
+  padding: 2px 6px;
+  border-radius: 4px;
+}
