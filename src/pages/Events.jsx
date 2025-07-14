@@ -10,6 +10,7 @@ function Events() {
      <Header/>
      <h2 style={{fontSize:'24px', fontWeight:'bold',marginBottom:'16px' ,display:'flex', marginTop:'50px', marginLeft:'50px'}}>Upcoming Events</h2>
      <EventsList style={{ marginLeft:'50px'}} />
+
      <AppFooter/>
     </div>
   )

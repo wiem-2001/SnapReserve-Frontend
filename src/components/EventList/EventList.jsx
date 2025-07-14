@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { DatePicker, Input, Slider, Pagination, Dropdown, Button, Menu } from 'antd';
+
 import EventCard from '../EventCard/EventCard';
 import './EventListCss.css';
 import useEventStore from '../../stores/eventStore';
 import useAuthStore from '../../stores/authStore';
+
 import { useEffect } from 'react';
 
 const { RangePicker } = DatePicker;
@@ -36,10 +38,14 @@ const EventList = () => {
     }
   }, [filters, authUser?.user?.role]);
 
+
   const handleMenuClick = (key, value) => {
     setFilters({ ...filters, [key]: value });
   };
 
+  useEffect(() => {
+    fetchEvents(filters); 
+  }, [filters]);
   const categoryMenu = (
     <Menu onClick={({ key }) => handleMenuClick('category', key)}>
       <Menu.Item key="concert">Concert</Menu.Item>

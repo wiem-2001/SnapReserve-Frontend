@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -66,5 +67,5 @@ function NotFound() {
     </div>
   );
 }
-
 export default NotFound;
+

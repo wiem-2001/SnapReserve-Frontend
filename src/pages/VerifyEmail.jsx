@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { MailCheck } from 'lucide-react';
 
@@ -46,3 +47,4 @@ function VerifyEmail() {
 }
 
 export default VerifyEmail;
+
