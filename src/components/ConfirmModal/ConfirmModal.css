@@ -1,0 +1,25 @@
+.custom-confirm-modal .ant-modal-footer .ant-btn-primary {
+  background-color: #021529 !important;
+  border-color: #021529 !important;
+  color: #ffd72d !important;
+  font-weight: bold !important;
+}
+.custom-confirm-modal .ant-modal-footer .ant-btn-primary:hover,
+.custom-confirm-modal .ant-modal-footer .ant-btn-primary:focus {
+  background-color: #06386e !important;
+  border-color: #06386e !important;
+  color: #ffd72d !important;
+}
+.custom-confirm-modal .ant-modal-footer .ant-btn-default {
+  color: #022907 !important;
+  border-color: #021529 !important;
+  font-weight: bold !important;
+  background-color: transparent !important;
+}
+
+.custom-confirm-modal .ant-modal-footer .ant-btn-default:hover,
+.custom-confirm-modal .ant-modal-footer .ant-btn-default:focus {
+  background-color: #e4e0e0 !important;
+
+}
+

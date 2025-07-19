@@ -164,26 +164,6 @@
 }
 
 
-.event-calendar .ant-picker-cell-selected .ant-picker-cell-inner,
-.event-calendar .ant-picker-cell-range-start .ant-picker-cell-inner,
-.event-calendar .ant-picker-cell-range-end .ant-picker-cell-inner {
-  background-color: #ffd72d !important;
-  color: #021529 !important;
-  border-radius: 4px;
-}
-
-
-.event-calendar .ant-picker-cell-inner:hover {
-  background-color: #ffe66c;
-  color: #021529;
-}
-
-
-.event-calendar .ant-picker-cell-today .ant-picker-cell-inner::before {
-  border: 1px solid #ffd72d !important;
-}
-
-
 .event-calendar .ant-picker-header button,
 .event-calendar .ant-picker-header-view {
   color: #ffd72d;
@@ -192,25 +172,6 @@
 
 .event-calendar .ant-picker-header button:hover {
   color: #ffe66c;
-}
-
-
-.event-calendar .ant-picker-cell-focused .ant-picker-cell-inner {
-  background-color: #fff7c2;
-  color: #021529;
-}
-
-.event-calendar .ant-picker-panel
-  .ant-picker-cell-focused
-  .ant-picker-cell-inner {
-  border: 1px solid #021529 !important;
-  border-radius: 4px;
-}
-
-
-.event-calendar .ant-picker-cell-inner:focus {
-  outline: none;
-  border: 1px solid #021529 !important;
 }
 
 .event-quantity {
@@ -241,19 +202,6 @@
   font-weight: 700;
 }
 
-.event-pricing .ant-checkbox-wrapper:hover span {
-  color: #021529 !important;
-}
-
-.event-pricing .ant-checkbox-checked .ant-checkbox-inner {
-  border-color: #021529;
-  background-color: #021529;
-}
-
-.event-pricing .ant-checkbox-checked .ant-checkbox-inner::after {
-  border-color: #ffd72d;
-}
-
 .event-pricing div[style*="border: 1px solid"] {
   transition: box-shadow 0.3s ease;
 }
@@ -263,3 +211,37 @@
   border-color: #021529 !important;
   background-color: #fff;
 }
+
+  .buy-ticket-btn{
+  background-color: #021529;
+  border-color: #021529;
+  color: #ffd72d;
+  }
+  .buy-ticket-btn:hover{
+  background-color: #06386e !important;
+  color: #ffd72d !important;
+  }
+  .buy-ticket-btn-disabled{
+  background-color: #06386e; 
+  border-color: #06386e;
+
+  }
+  .ant-picker-cell-selected .ant-picker-cell-inner,
+  .ant-picker-cell-range-start .ant-picker-cell-inner,
+  .ant-picker-cell-range-end .ant-picker-cell-inner {
+    background-color: #021529 !important;
+    color: #fff;
+  }
+
+  .ant-checkbox-checked .ant-checkbox-inner {
+    background-color: #021529 !important;
+    border-color: #021529 !important;
+  }
+
+  .ant-checkbox-wrapper:hover .ant-checkbox-inner,
+  .ant-checkbox:hover .ant-checkbox-inner {
+    border-color: #021529 !important;
+  }
+  .ant-checkbox-checked .ant-checkbox-inner::after {
+    border-color: #fff !important;
+  }

@@ -16,7 +16,7 @@ const SignupPage = () => {
   });
 
   const [errors, setErrors] = useState({});
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { signup } = useAuthStore();
 
@@ -70,22 +70,24 @@ const SignupPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
+  if (!validateForm()) {
+    return;
+  }
 
-    try {
-
-      const { confirmPassword, ...signupData } = formData;
-      await signup(signupData);
-      navigate('/verify-email');
-    } catch (error) {
-      setErrors({ api: error.response?.data?.message  });
-    }
-  };
+  try {
+    setIsSubmitting(true);
+    const { confirmPassword, ...signupData } = formData;
+    await signup(signupData);
+    navigate('/verify-email');
+  } catch (error) {
+    setErrors({ api: error.response?.data?.message });
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
      const handleGoogleLogin = () => {
       window.location.href = import.meta.env.VITE_API_URL + '/auth/google';
@@ -179,7 +181,17 @@ const SignupPage = () => {
 
             {errors.api && <div className="error-message">{errors.api}</div>}
             
-            <button type="submit" className="signup-button">Sign Up</button>
+            <button 
+                type="submit" 
+                className="signup-button"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <span>Processing...</span> 
+                ) : (
+                  <span>Sign Up</span>
+                )}
+              </button>
             
             <div className="divider">
               <span>or</span>

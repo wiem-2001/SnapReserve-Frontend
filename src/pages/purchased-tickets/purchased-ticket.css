@@ -1,0 +1,137 @@
+.purchased-tickets-container {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding-left: 100px;
+  padding-top: 30px;
+}
+
+.purchased-tickets-container h2 {
+  margin-bottom: 30px;
+}
+.anchor{
+    padding-top: 150px;
+    margin-right: 80px;
+}
+
+.year-group {
+  margin-bottom: 30px;
+  border-bottom: 1px solid #eee;
+}
+
+.year-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.year-header:hover {
+  background-color: #f9f9f9;
+}
+
+.year-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #021529; 
+}
+
+.toggle-icon {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.tickets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 20px 0;
+}
+
+.auth-message,
+.no-tickets {
+  text-align: center;
+  padding: 40px;
+  font-size: 1.2rem;
+  color: #666;
+}
+.ticket-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.ticket-card:hover {
+  transform: translateY(-5px);
+}
+
+.ticket-header {
+  background-color: #021529;
+  color: white;
+  padding: 15px;
+}
+
+.ticket-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.ticket-body {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.event-info p {
+  margin: 5px 0;
+  color: #555;
+}
+
+.ticket-details {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px dashed #ddd;
+}
+
+.ticket-details p {
+  margin: 5px 0;
+}
+
+.tier {
+  font-weight: bold;
+}
+
+.price {
+  color: #021529; 
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.ticket-footer {
+  padding: 15px;
+  text-align: center;
+  border-top: 1px solid #eee;
+}
+
+.qr-code {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto;
+}
+
+.custom-anchor {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+}
+
+.custom-anchor .ant-anchor-link-active > .ant-anchor-link-title {
+  color: #4b3e05 !important;
+  font-weight: 600;
+}

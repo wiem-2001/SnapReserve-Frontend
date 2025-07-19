@@ -320,12 +320,40 @@ function CreateEvent() {
 
             {formData.dates.map((dateObj, i) => (
               <Space key={i} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
-                <DatePicker
-                  value={dateObj.date ? moment(dateObj.date) : null}
-                  onChange={date => handleDateChange(i, 'date', date?.format('YYYY-MM-DD'))}
-                  className="custom-datepicker"
-                  status={errors.dates ? 'error' : ''}
-                />
+            <DatePicker
+                showTime={{ format: 'HH:mm' }}
+                value={dateObj.date ? moment(dateObj.date) : null}
+                disabledDate={(current) =>
+                  current && current < moment().startOf('day')
+                }
+                disabledTime={(current) => {
+                  if (!current) return {};
+                  const now = moment();
+                  if (current.isSame(now, 'day')) {
+                    return {
+                      disabledHours: () =>
+                        Array.from({ length: 24 }, (_, h) => h).filter(
+                          (h) => h < now.hour()
+                        ),
+                      disabledMinutes: () => {
+                        if (current.hour() === now.hour()) {
+                          return Array.from({ length: 60 }, (_, m) => m).filter(
+                            (m) => m < now.minute()
+                          );
+                        }
+                        return [];
+                      },
+                    };
+                  }
+                  return {};
+                }}
+                onChange={(date) =>
+                  handleDateChange(i, 'date', date ? date.toISOString() : '')
+                }
+                className="custom-datepicker"
+                status={errors.dates ? 'error' : ''}
+              />
+
                 <Input
                   placeholder="Location"
                   value={dateObj.location}

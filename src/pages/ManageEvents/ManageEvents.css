@@ -1,0 +1,29 @@
+.manage-events-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 50px;
+  margin-bottom: 10px;
+}
+
+.manage-events-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.create-event-button {
+  background-color: #021529 !important;
+  border-color: #021529 !important;
+  color: #ffd72d !important;
+  font-weight: initial;
+  transform: scale(1.05);
+  transition: all 0.2s ease;
+  margin-top: 16px;
+}
+
+.create-event-button:hover {
+  background-color: #06386e !important;
+  border-color: #06386e !important;
+  color: #ffd72d !important;
+}

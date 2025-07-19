@@ -11,7 +11,7 @@ const menuItems = [
   { key: 'home', label: 'UpComming events', path: '/' },
   { key: 'Recommended', label: 'Recommended for You', path: '/Recommended' },
   { key: 'resell', label: 'Resell Tickets', path: '/resell' },
-  { key: 'deals', label: 'Deals', path: '/deals' },
+  { key: 'deals', label: 'Deals', path: '/deals' }
 ];
 
 function Header() {
@@ -60,7 +60,7 @@ function Header() {
       My Profile
     </Menu.Item>
 
- {userRole == 'attendee' && (      <Menu.Item key="tickets" icon={
+ {userRole == 'attendee' && (      <Menu.Item key="purchased-tickets" icon={
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="15"

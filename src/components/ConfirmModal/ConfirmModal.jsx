@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal } from 'antd';
-
+import '../ConfirmModal/ConfirmModal.css'
 function ConfirmModal({
   visible,
   onConfirm,
@@ -22,24 +22,11 @@ function ConfirmModal({
   cancelText={cancelText}
   confirmLoading={loading}
   centered={centered}
-  okButtonProps={{
-    style: {
-      backgroundColor: '#021529', 
-      borderColor: '#021529',
-      color: '#ffd72d',           
-      fontWeight: 'bold',
-    },
-  }}
-  cancelButtonProps={{
-    style: {
-      color: '#021529',
-      borderColor: '#021529',
-      fontWeight: 'bold',
-    },
-  }}
+  className="custom-confirm-modal" 
 >
   {children}
 </Modal>
+
   );
 }
 

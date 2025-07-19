@@ -19,12 +19,12 @@ import {
   DeleteOutlined,
   InfoCircleOutlined 
 } from '@ant-design/icons';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate , useLocation } from 'react-router-dom';
 import dayjs from 'dayjs';
 import useEventStore from '../../stores/eventStore';
 import useAuthStore from '../../stores/authStore';
 import useTicketStore from '../../stores/ticketStore';
-import ConfirmModal from '../../components/ConfirmModal';
+import ConfirmModal from '../../components/ConfirmModal/ConfirmModal';
 import './EventDetails.css';
 
 const { Title, Text } = Typography;
@@ -32,6 +32,7 @@ const { Title, Text } = Typography;
 const EventDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location   = useLocation(); 
   const { event, fetchEvent, loading: eventLoading, error: eventError, deleteEvent } = useEventStore();
   const { user: authUser, getMe } = useAuthStore();
   const { 
@@ -51,6 +52,8 @@ const EventDetails = () => {
   const availableDates = useMemo(() => 
     event?.dates?.map(d => ({
       dayjsDate: dayjs(d.date).startOf('day'),
+      time: dayjs(d.date).format('HH:mm'),
+      full: d.date,
       location: d.location,
     })) || [],
     [event?.dates]
@@ -65,7 +68,6 @@ const EventDetails = () => {
     return futureDates.sort((a, b) => a.dayjsDate.diff(b.dayjsDate))[0];
   }, [availableDates]);
 
-  // Fetch event and user data
   useEffect(() => {
     let isMounted = true;
     
@@ -115,7 +117,6 @@ const EventDetails = () => {
     };
   }, [authUser, getMe]);
 
-  // Initialize date selection
   useEffect(() => {
     if (availableDates.length === 0) {
       setSelectedDate(null);
@@ -135,7 +136,6 @@ const EventDetails = () => {
     }
   }, [availableDates, findClosestUpcomingDate, selectedDate]);
 
-  // Initialize ticket selections
   useEffect(() => {
     if (event?.pricingTiers?.length) {
       const initialQuantities = {};
@@ -152,9 +152,7 @@ const EventDetails = () => {
       
       setQuantities(prev => ({ ...prev, ...initialQuantities }));
     }
-  }, [event?.pricingTiers]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Calendar helpers
+  }, [event?.pricingTiers]); 
   const disabledDate = useCallback((current) => {
     if (!current) return true;
     return !availableDates.some(d => d.dayjsDate.isSame(current.startOf('day')));
@@ -163,7 +161,8 @@ const EventDetails = () => {
   const dateCellRender = useCallback((value) => {
     const dateInfo = availableDates.find(d => d.dayjsDate.isSame(value.startOf('day')));
     return dateInfo ? (
-      <Text type="secondary" style={{ fontSize: 10 }}>{dateInfo.location}</Text>
+    <Text type="secondary" style={{ fontSize: 15,color:'black',fontWeight:'bold' }}>{dateInfo.time} — {dateInfo.location}</Text>
+
     ) : null;
   }, [availableDates]);
 
@@ -176,7 +175,6 @@ const EventDetails = () => {
     setCalendarValue(value);
   }, []);
 
-  // Event handlers
   const toggleFavorite = useCallback(() => setIsFavorited(prev => !prev), []);
   const handleDeleteClick = useCallback((e) => {
     e.stopPropagation();
@@ -212,6 +210,27 @@ const EventDetails = () => {
     }));
   }, []);
 
+    useEffect(() => {
+    if (event?.pricingTiers?.length) {
+      const initialQuantities = {};
+      const allTierIds = [];
+
+      event.pricingTiers.forEach(tier => {
+        if (tier.capacity > 0) {
+          initialQuantities[tier.id] = quantities[tier.id] || 1;
+          allTierIds.push(tier.id);
+        }
+      });
+
+      if (JSON.stringify(allTierIds) !== JSON.stringify(selectedTierIds)) {
+        setSelectedTierIds(allTierIds);
+      }
+
+      setQuantities(prev => ({ ...prev, ...initialQuantities }));
+    }
+  }, [event?.pricingTiers]);
+
+
     const totalPrice = useMemo(() => 
     selectedTierIds.reduce((sum, tierId) => {
       const tier = event?.pricingTiers?.find(t => t.id === tierId);
@@ -221,8 +240,12 @@ const EventDetails = () => {
     [selectedTierIds, quantities, event?.pricingTiers]
   );
 
-  // Checkout handler
   const handleCheckout = useCallback(async () => {
+    if(!authUser?.user) {
+       message.info('Please log in to buy tickets');
+       navigate('/login', { state: { from: location.pathname } });
+       return ;
+    }
     if (!selectedDate || selectedTierIds.length === 0 || totalPrice === 0) return;
 
     try {
@@ -245,12 +268,8 @@ const EventDetails = () => {
     } catch (error) {
       message.error(error.message || 'Failed to initiate checkout');
     }
-  }, [selectedDate, selectedTierIds, totalPrice, quantities, createCheckoutSession, event?.id]);
+  }, [authUser, navigate, location,selectedDate, selectedTierIds, totalPrice, quantities, createCheckoutSession, event?.id]);
 
-  // Calculate total price
-
-
-  // Loading states
   if (eventLoading || userLoading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
@@ -363,108 +382,140 @@ const EventDetails = () => {
         />
        
       </div>
-{authUser?.user?.role === "attendee" && (
-  <div>
-    {selectedDate && (
-      <div style={{ marginTop: 12 }}>
-        <Text strong>Selected Date: {selectedDate.dayjsDate.format('YYYY-MM-DD')}</Text>
-        <br />
-        <Text strong>Location: {selectedDate.location}</Text>
+    {authUser?.user?.role !== "organizer" && (
+      <div>
+        {selectedDate && (
+          <div style={{ marginTop: 12 }}>
+          <Text strong>
+            {selectedDate.dayjsDate.format('YYYY-MM-DD')} at {selectedDate.time} — {selectedDate.location}
+            </Text>
+          </div>
+        )}
+
+        <div style={{ marginBottom: 24, textAlign: 'left' }}>
+          <Title level={2}>Select Ticket Types & Quantities</Title>
+
+          <Checkbox.Group
+            value={selectedTierIds}
+            onChange={handleTierChange}
+            style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
+          >
+              {event.pricingTiers.map(tier => (
+                <Checkbox
+                  key={tier.id}
+                  value={tier.id}
+                  disabled={tier.capacity === 0}
+                >
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    {tier.name}
+                    <Tooltip title={`Max seats available: ${tier.capacity}`}>
+                      <InfoCircleOutlined style={{ color: '#888' }} />
+                    </Tooltip>
+                    {tier.capacity === 0 && (
+                      <Text type="danger" style={{ marginLeft: 8 }}>
+                        Sold out
+                      </Text>
+                    )}
+                  </span>
+                </Checkbox>
+              ))}
+            </Checkbox.Group>
+
+          {selectedTierIds.map(tierId => {
+            const tier = event.pricingTiers.find(t => t.id === tierId);
+            const currentQty = quantities[tierId] || 0;
+
+            return (
+              <div
+                key={tierId}
+                style={{
+                  marginTop: 12,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 16,
+                  padding: '8px 12px',
+                  border: '1px solid #ddd',
+                  borderRadius: 6,
+                  backgroundColor: '#f9f9f9',
+                }}
+              >
+                <div style={{ flex: 1, fontWeight: 600 }}>
+                  {tier.name} — <Text style={{ color: '#d1ac09ff' }}>${tier.price.toFixed(2)}</Text>
+                </div>
+                <div style={{ minWidth: 180, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Text>Quantity:</Text>
+                  <InputNumber
+                    min={0}
+                    max={tier.capacity}
+                    value={currentQty}
+                    onChange={value => {
+                      if (value > tier.capacity) {
+                        message.warning(`Max seats for ${tier.name} is ${tier.capacity}`);
+                        return;
+                      }
+                      handleQuantityChange(tierId, value);
+                    }}
+                    disabled={!selectedTierIds.includes(tierId)}
+                    style={{ width: 90 }}
+                  />
+                  <Tooltip title={`Max seats available: ${tier.capacity}`}>
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      / {tier.capacity} available
+                    </Text>
+                  </Tooltip>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        
+          <div>
+            {selectedTierIds.length > 0 && (
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <div style={{ fontSize: 24, fontWeight: 'bold' }}>
+                  Total:{' '}
+                  <Text style={{ color: '#d1ac09ff' }}>${totalPrice.toFixed(2)}</Text>
+                </div>
+              </div>
+            )}
+            </div>
+          <Button
+              type="primary"
+              size="large"
+              disabled={
+                !selectedDate || 
+                selectedTierIds.length === 0 || 
+                totalPrice === 0 ||
+                selectedTierIds.every(tierId => {
+                  const tier = event.pricingTiers.find(t => t.id === tierId);
+                  return !tier || tier.capacity === 0;
+                })
+              }
+              onClick={handleCheckout}
+              loading={checkoutLoading}
+              className='buy-ticket-btn'
+            >
+              {checkoutLoading ? 'Processing...' : 'Buy Ticket'}
+            </Button>
+
+        </div>
+
+        <ConfirmModal
+          visible={showConfirm}
+          onConfirm={handleDeleteConfirm}
+          onCancel={() => setShowConfirm(false)}
+          title="Are you sure you want to delete this event?"
+        />
       </div>
     )}
-
-    <div style={{ marginBottom: 24, textAlign: 'left' }}>
-      <Title level={2}>Select Ticket Types & Quantities</Title>
-
-      <Checkbox.Group
-        options={event.pricingTiers.map(tier => ({
-          label: (
-            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              {tier.name}
-              <Tooltip title={`Max seats available: ${tier.capacity}`}>
-                <InfoCircleOutlined style={{ color: '#888' }} />
-              </Tooltip>
-            </span>
-          ),
-          value: tier.id,
-        }))}
-        value={selectedTierIds}
-        onChange={handleTierChange}
-        style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
-      />
-
-      {selectedTierIds.map(tierId => {
-        const tier = event.pricingTiers.find(t => t.id === tierId);
-        const currentQty = quantities[tierId] || 0;
-
-        return (
-          <div
-            key={tierId}
-            style={{
-              marginTop: 12,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 16,
-              padding: '8px 12px',
-              border: '1px solid #ddd',
-              borderRadius: 6,
-              backgroundColor: '#f9f9f9',
-            }}
-          >
-            <div style={{ flex: 1, fontWeight: 600 }}>
-              {tier.name} — <Text style={{ color: '#d1ac09ff' }}>${tier.price.toFixed(2)}</Text>
-            </div>
-            <div style={{ minWidth: 180, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Text>Quantity:</Text>
-              <InputNumber
-                min={0}
-                max={tier.capacity}
-                value={currentQty}
-                onChange={value => {
-                  if (value > tier.capacity) {
-                    message.warning(`Max seats for ${tier.name} is ${tier.capacity}`);
-                    return;
-                  }
-                  handleQuantityChange(tierId, value);
-                }}
-                disabled={!selectedTierIds.includes(tierId)}
-                style={{ width: 90 }}
-              />
-              <Tooltip title={`Max seats available: ${tier.capacity}`}>
-                <Text type="secondary" style={{ fontSize: 12 }}>
-                  / {tier.capacity} available
-                </Text>
-              </Tooltip>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <div style={{ fontSize: 24, fontWeight: 'bold' }}>
-        Total: <Text style={{ color: '#d1ac09ff' }}>${totalPrice.toFixed(2)}</Text>
-      </div>
-      <Button
-        type="primary"
-        size="large"
-        style={{ backgroundColor: '#021529', borderColor: '#021529', color: '#ffd72d' }}
-        disabled={!selectedDate || selectedTierIds.length === 0 || totalPrice === 0}
-        onClick={handleCheckout}
-        loading={checkoutLoading}
-      >
-        {checkoutLoading ? 'Processing...' : 'Buy Ticket'}
-      </Button>
-    </div>
-
-    <ConfirmModal
-      visible={showConfirm}
-      onConfirm={handleDeleteConfirm}
-      onCancel={() => setShowConfirm(false)}
-      title="Are you sure you want to delete this event?"
-    />
-  </div>
-)}
   {authUser?.user?.role ==="organizer" &&(
     <div>
    <Title level={2}>Ticket Pricing Overview</Title>
@@ -499,7 +550,13 @@ const EventDetails = () => {
             <br />
             <Text style={{ color: '#766209ff' }}>${tier.price.toFixed(2)}</Text>
           </div>
-          <Text type="secondary">{tier.capacity} seats available</Text>
+        <div>
+            {tier.capacity === 0 ? (
+              <Text type="danger">Sold out</Text>
+            ) : (
+              <Text type="secondary">{tier.capacity} seats available</Text>
+            )}
+          </div>
           </div>
            ))}
         </div>

@@ -6,12 +6,13 @@ import {
   HeartOutlined, 
   HeartFilled, 
   EditOutlined, 
+  FieldTimeOutlined  ,
   DeleteOutlined 
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../../stores/authStore';
-import ConfirmModal from '../ConfirmModal';
+import ConfirmModal from '../ConfirmModal/ConfirmModal';
 import useEventStore from '../../stores/eventStore';
 import './EventCard.css'; 
 
@@ -87,7 +88,7 @@ const EventCard = ({ event, onDelete }) => {
   const handleCardDetails = (eventId) => {
     if(authuser?.user?.role === "organizer") {
       navigate(`/organizer-event-details/${eventId}`);
-    } else if (authuser?.user?.role === "attendee") {
+    } else  {
       navigate(`/event-details/${eventId}`);
     }
   };
@@ -138,15 +139,11 @@ const EventCard = ({ event, onDelete }) => {
           />
         }
       >
-        {authuser?.user?.role === "attendee" ? (
-          <Button
-            type="text"
-            icon={saved ? <HeartFilled style={{ color: '#ff4d4f' }} /> : <HeartOutlined />}
-            onClick={handleSaveClick}
-            className="event-card-save-btn"
-          />
-        ) : (
-          <div className="event-card-action-btns">
+       
+       
+         
+       {authuser?.user?.role === "organizer" ? (
+           <div className="event-card-action-btns">
             <Button
               type="text"
               icon={<EditOutlined style={{ color: '#ffd72d' }} />}
@@ -163,26 +160,36 @@ const EventCard = ({ event, onDelete }) => {
               className="event-card-action-btn"
             />
           </div>   
-        )}
+       ):(
+          <Button
+            type="text"
+            icon={saved ? <HeartFilled style={{ color: '#ff4d4f' }} /> : <HeartOutlined />}
+            onClick={handleSaveClick}
+            className="event-card-save-btn"
+          />
+       )}
         
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <h3 className="event-card-title">{event.title}</h3>
           <p className="event-card-description">{event.description}</p>
         
-          <div className="event-card-meta">
-            <div className="event-card-meta-item">
-              <CalendarOutlined className="event-card-meta-icon" />
-              <span className="event-card-meta-text">
-                {nearestDate ? dayjs(nearestDate.date).format('YYYY-MM-DD') : 'No upcoming date'}
-              </span>
-            </div>
-            <div className="event-card-meta-item">
-              <EnvironmentOutlined className="event-card-meta-icon" />
-              <span className="event-card-meta-text">
-                {nearestDate ? nearestDate.location : 'N/A'}
-              </span>
-            </div>
-          </div>
+      <div className="event-card-meta">
+        <div className="event-card-meta-item">
+          <CalendarOutlined className="event-card-meta-icon" />
+          <span className="event-card-meta-text">
+            {nearestDate
+              ? `${dayjs(nearestDate.date).format('YYYY-MM-DD')} at ${dayjs(nearestDate.date).format('HH:mm')}`
+              : 'No upcoming date'}
+          </span>
+        </div>
+
+        <div className="event-card-meta-item">
+          <EnvironmentOutlined className="event-card-meta-icon" />
+          <span className="event-card-meta-text">
+            {nearestDate ? nearestDate.location : 'N/A'}
+          </span>
+        </div>
+      </div>
         </div>
 
         {isHovered && (

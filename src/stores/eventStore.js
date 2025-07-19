@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import axios from 'axios';
+import qs from 'qs';
 
 const EventApi = import.meta.env.VITE_API_URL + '/event'; 
 
@@ -10,31 +11,40 @@ const useEventStore = create((set, get) => ({
     error: null,
 
     fetchEvents: async (filters = {}) => {
-        try {
-            set({ loading: true });
-            const res = await axios.get(`${EventApi}/getall-events`, { params: filters });
-            set({ events: res.data, loading: false });
-        } catch (error) {
-            set({ error: error.message, loading: false });
-        }
+    try {
+        set({ loading: true });
+        const res = await axios.get(`${EventApi}/getall-events`, {
+        params: filters,
+        paramsSerializer: (params) =>
+            qs.stringify(params, { arrayFormat: 'comma' }),
+        });
+        set({ events: res.data, loading: false });
+    } catch (error) {
+        set({ error: error.message, loading: false });
+    }
     },
 
-    fetchOrganizerEvents : async (filters = {}) => {
-        try {
-            set({ loading: true });
-            const res = await axios.get(`${EventApi}/get-events/owner`, { params: filters ,  withCredentials: true });
-            set({ events: res.data, loading: false });
-        } catch (error) {
-            set({ error: error.message, loading: false });
-        }
+
+    fetchOrganizerEvents: async (filters = {}) => {
+    try {
+        set({ loading: true });
+        const res = await axios.get(`${EventApi}/get-events/owner`, {
+        params: filters,
+        paramsSerializer: (params) =>
+            qs.stringify(params, { arrayFormat: 'comma' }),
+        withCredentials: true, 
+        });
+        set({ events: res.data, loading: false });
+    } catch (error) {
+        set({ error: error.message, loading: false });
+    }
     },
+
 
     fetchEvent: async (id) => {
         try {
             set({ loading: true });
-            const res = await axios.get(`${EventApi}/get-event/${id}`, {
-                withCredentials: true
-            });
+            const res = await axios.get(`${EventApi}/get-event/${id}`);
             set({ event: res.data, loading: false });
         } catch (error) {
             set({ error: error.message, loading: false });

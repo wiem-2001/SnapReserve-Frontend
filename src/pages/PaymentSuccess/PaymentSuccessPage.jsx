@@ -133,11 +133,12 @@ export default function PaymentSuccessPage() {
                 <div style={{ marginTop: 8, fontSize: 16, display: 'flex', gap: 24 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <CalendarOutlined />
-                    <span>
-                      {orderDetails.event.dates.length > 1 
-                        ? 'Multiple Dates' 
-                        : new Date(orderDetails.event.dates[0].date).toLocaleDateString()}
-                    </span>
+                   <span>
+                    {orderDetails.event.dates.length > 1 
+                      ? 'Multiple Dates' 
+                      : new Date(orderDetails.event.dates[0].date).toLocaleString()}
+                  </span>
+
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <EnvironmentOutlined />
@@ -204,9 +205,10 @@ export default function PaymentSuccessPage() {
           <p className="status-text-simple">
             Order Date:{' '}
             <span className="highlighted-data">
-              {new Date(orderDetails.date).toLocaleDateString()}
+              {new Date(orderDetails.date).toLocaleString()}
             </span>
           </p>
+
 
           <p className="status-text-simple">
             A confirmation email was sent to{' '}

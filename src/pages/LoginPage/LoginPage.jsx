@@ -3,7 +3,7 @@ import { FaGoogle, FaFacebook } from 'react-icons/fa';
 import './LoginPage.css';
 import logo from '../../assets/logo.png';
 import useAuthStore from '../../stores/authStore';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate , useLocation } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 
 const LoginPage = () => {
@@ -14,6 +14,7 @@ const LoginPage = () => {
   
   const signin = useAuthStore(state => state.signin);
   const navigate = useNavigate();
+   const location = useLocation();
 
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -23,7 +24,6 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate email before submission
     if (!validateEmail(email)) {
       setEmailError('Please enter a valid email address');
       return;
@@ -39,7 +39,8 @@ const LoginPage = () => {
       if (role === 'organizer') {
         navigate('/manage-events');
       } else {
-        navigate('/');
+        const from = location.state?.from || '/';
+        navigate(from);
       }
     } catch (err) {
       const msg = err?.response?.data?.message || err?.message ;
