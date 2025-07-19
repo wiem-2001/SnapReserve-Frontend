@@ -1,19 +1,46 @@
 import React from 'react';
 import './Ticket.css';
 import { format } from 'date-fns';
+import { useState , useRef } from 'react';
+import html2canvas from 'html2canvas';
 
 const Ticket = ({ ticket }) => {
+  const [showMenu, setShowMenu] = useState(false);
+  const ticketRef = useRef(null);
   if (!ticket) return null;
 
   const eventDate = new Date(ticket.date);
   const month = format(eventDate, 'MMM').toUpperCase();
   const day = format(eventDate, 'd');
 
+
+  const handleDownloadImage = async () => {
+    setShowMenu(false);
+    if (!ticketRef.current) return;
+     await new Promise(resolve => setTimeout(resolve, 100)); 
+    const canvas = await html2canvas(ticketRef.current, { scale: 2 });
+    const imgData = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = imgData;
+    link.download = `ticket_${ticket.uuid}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  
   return (
-    <div className="ticket-card">
+    <div className="ticket-card" ref={ticketRef}>
       <div className="ticket-header">
         <div className="header-shine"></div>
         <h2>{ticket.event?.title || 'Event Title'}</h2>
+         <div className="ticket-menu">
+          <button onClick={() => setShowMenu(!showMenu)} className="menu-button">⋮</button>
+          {showMenu && (
+            <div className="menu-dropdown">
+              <button onClick={handleDownloadImage}>Download Ticket as an Image</button>
+            </div>
+          )}
+        </div>
       </div>
       
       <div className="ticket-body">
