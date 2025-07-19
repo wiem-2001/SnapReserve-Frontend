@@ -1,12 +1,116 @@
-        .ant-menu-dark.ant-menu-horizontal {
-          background: #021529 !important;
-          border-bottom: none !important;
-        }
-        .ant-menu-dark.ant-menu-horizontal > .ant-menu-item-selected {
-          background-color: #021529 !important;
-          color: #ffd72d !important;
-          border-bottom: 2px solid #ffd72d !important;
-        }
-        .ant-menu-dark.ant-menu-horizontal > .ant-menu-item:hover {
-          color: #ffd72d !important;
-        }
+.ant-menu-dark.ant-menu-horizontal {
+  background: #021529 !important;
+  border-bottom: none !important;
+}
+.ant-menu-dark.ant-menu-horizontal > .ant-menu-item-selected {
+  background-color: #021529 !important;
+  color: #ffd72d !important;
+  border-bottom: 2px solid #ffd72d !important;
+}
+.ant-menu-dark.ant-menu-horizontal > .ant-menu-item:hover {
+  color: #ffd72d !important;
+}
+
+.header-container {
+  background-color: #021529;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 82px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  position: relative;
+  z-index: 1000;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+}
+
+.logo-image {
+  height: 60px;
+  margin-right: 12px;
+}
+
+.header-right-section {
+  color: white;
+}
+
+
+.avatar-style {
+  background-color: #021529;
+  color: white;
+}
+
+.notification-button {
+  color: white;
+  font-size: 20px;
+}
+
+.notification-button:hover {
+  color: white !important;
+  font-size: 20px;
+}
+
+.dropdown-empty {
+  width: 300px;
+  padding: 16px;
+}
+
+.signup-button {
+  background-color: #ffd72d;
+  border-color: #021529;
+  margin-top: 16px;
+  font-weight: bold;
+  color: #021529;
+}
+
+.signin-button {
+  background-color: #021529;
+  border-color: white;
+  margin-top: 16px;
+  font-weight: bold;
+  color: white;
+}
+.dropdown-card {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 4px 12px #00000026;
+  min-width: 280px; 
+}
+
+.avatar-button {
+  background-color: transparent;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  display: flex;
+  align-items: center;
+  color: white;
+}
+
+.avatar-button:hover {
+  background-color: #021529 !important;
+  color: white !important;
+}
+
+.avatar-button:hover .fullName,
+.avatar-button:hover .downOutlined {
+  color: white !important;
+}
+
+.fullName,
+.downOutlined {
+  color: white;
+  transition: color 0.3s ease;
+}

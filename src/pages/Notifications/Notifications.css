@@ -1,0 +1,19 @@
+.explore-event-btn {
+  background-color: #021529;
+  color: #ffd72d;
+  padding: 16px 32px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 140px;
+  height: 50px;
+}
+
+.explore-event-btn:hover {
+background-color: #06386e !important;
+  color: #ffd72d !important;
+}
+

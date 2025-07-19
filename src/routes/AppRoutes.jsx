@@ -15,7 +15,7 @@ import Layout from '../AppLayout/Layout';
 import Events from '../pages/Events';
 import PurchasedTickets from '../pages/purchased-tickets/PurchasedTickets.jsx';
 import Preferences from '../pages/Preferences.jsx';
-import Notifications from '../pages/Notifications.jsx';
+
 import AccountSettings from '../pages/AccountSettings.jsx';
 import CreateEvent from '../pages/CreateEvent/CreateEvent.jsx';
 import OrganizerAnalytics from '../pages/OrganizerAnalytics.jsx';
@@ -25,6 +25,7 @@ import EditEvent from '../pages/EditEvent.jsx';
 import OrganizerEventDetails from '../pages/OrganizerEventDetails.jsx';
 import PaymentSuccessPage from '../pages/PaymentSuccess/PaymentSuccessPage.jsx';
 import ManageEvents from '../pages/ManageEvents/ManageEvents.jsx';
+import Notifications from '../pages/Notifications/Notifications.jsx';
 const AppRoutes = () => {
   return (
     <Routes>
@@ -45,7 +46,7 @@ const AppRoutes = () => {
         <Route path="/purchased-tickets" element={<Layout><PurchasedTickets/></Layout>} />
         <Route path="/preferences" element={<Preferences/>} />
         <Route path="/payment-info" element={<PaymentInfo/>} />
-        <Route path="/notifications" element={<Notifications/>} />
+        <Route path="/notifications" element={<Layout><Notifications/></Layout>} />
         <Route path="/account-settings" element={<AccountSettings/>} />
         <Route path="/create-event" element={<CreateEvent/>} />
         <Route path="/edit-event/:id" element={<EditEvent/>} />
