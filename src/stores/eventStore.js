@@ -47,7 +47,6 @@ const useEventStore = create((set, get) => ({
       const res = await axios.get(`${EventApi}/recommended-events`, {
         withCredentials: true,
       });
-       console.log("📦 API response:", res.data);
       set({ recommendations: res.data.events, loading: false });
     } catch (error) {
       console.error("Error fetching recommendations:", error);

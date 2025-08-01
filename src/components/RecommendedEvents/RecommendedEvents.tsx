@@ -40,9 +40,6 @@ function RecommendedEvents({ events = [] }) {
   useEffect(() => {
     if (sliderRef.current) {
       sliderRef.current.slickGoTo(0);
-      console.log('RecommendedEvents count:', events.length);
-
-
     }
   }, [events]);
 

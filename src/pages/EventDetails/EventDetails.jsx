@@ -26,6 +26,7 @@ import useAuthStore from '../../stores/authStore';
 import useTicketStore from '../../stores/ticketStore';
 import ConfirmModal from '../../components/ConfirmModal/ConfirmModal';
 import './EventDetails.css';
+import FraudAlertModal from '../../components/FraudAlertModal/FraudAlertModal';
 
 const { Title, Text } = Typography;
 
@@ -48,6 +49,8 @@ const EventDetails = () => {
   const [calendarValue, setCalendarValue] = useState(dayjs());
   const [quantities, setQuantities] = useState({});
   const [userLoading, setUserLoading] = useState(false);
+  const [isFraudModalVisible, setIsFraudModalVisible] = useState(false);
+
 
   const availableDates = useMemo(() => 
     event?.dates?.map(d => ({
@@ -266,7 +269,12 @@ const EventDetails = () => {
         window.location.href = url;
       }
     } catch (error) {
-      message.error(error.message || 'Failed to initiate checkout');
+      if (error.response?.status === 403) {
+        setIsFraudModalVisible(true);
+      }else  {
+          message.error(error.message || 'Failed to initiate checkout');
+      }
+     
     }
   }, [authUser, navigate, location,selectedDate, selectedTierIds, totalPrice, quantities, createCheckoutSession, event?.id]);
 
@@ -505,7 +513,10 @@ const EventDetails = () => {
             >
               {checkoutLoading ? 'Processing...' : 'Buy Ticket'}
             </Button>
-
+              <FraudAlertModal
+                visible={isFraudModalVisible}
+                onClose={() => setIsFraudModalVisible(false)}
+              />
         </div>
 
         <ConfirmModal

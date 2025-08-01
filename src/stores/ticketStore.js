@@ -35,7 +35,7 @@ const useTicketStore = create((set) => ({
         errorMessage = error.response.data?.error || error.response.data?.message ||  errorMessage;
       }
       set({  loading: false, error: errorMessage });
-      throw new Error(errorMessage);
+      throw error
     }
   },
 
