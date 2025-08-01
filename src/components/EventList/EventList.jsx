@@ -8,6 +8,7 @@ import {
   Button,
   Menu,
   Typography,
+  Divider ,
   message,
 } from 'antd';
 import debounce from 'lodash/debounce';
@@ -17,6 +18,7 @@ import EventCard from '../EventCard/EventCard';
 import './EventListCss.css';
 import useEventStore from '../../stores/eventStore';
 import useAuthStore from '../../stores/authStore';
+import RecommendedEvents from '../RecommendedEvents/RecommendedEvents';
 
 const { RangePicker } = DatePicker;
 const { Text } = Typography;
@@ -37,13 +39,13 @@ const defaultCategories = [
 const EventList = () => {
   const [filters, setFilters] = useState({});
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const { events, fetchEvents, fetchOrganizerEvents } = useEventStore();
+  const { events, fetchEvents, fetchOrganizerEvents , recommendations,fetchRecommendations} = useEventStore();
   const { user: authUser, getMe } = useAuthStore();
 
 useEffect(() => {
   const loadUser = async () => {
     try {
-      await getMe();       
+      await getMe();     
     } catch {
       
     }
@@ -58,6 +60,15 @@ useEffect(() => {
     fetchEvents(filters);
   }
 }, [filters, authUser?.user?.role, fetchEvents, fetchOrganizerEvents]);
+
+useEffect(() => {
+  if (authUser?.user?.role === 'attendee') {
+    fetchRecommendations();
+  }
+}, [authUser?.user?.role, fetchRecommendations]);
+
+useEffect(() => {
+}, [recommendations]);
 
   const handleKeywordChange = debounce((value) => {
     setFilters((prev) => ({ ...prev, keyword: value || undefined }));
@@ -101,7 +112,16 @@ useEffect(() => {
   );
 
   return (
+
     <div className="event-list-container">
+      {authUser?.user?.role === 'attendee' && (
+       <di>
+          <RecommendedEvents events={recommendations} />
+          <h2 style={{marginBottom:'50px'}}>Upcomming Events</h2>
+       </di>
+      )}
+
+ 
       <div className="filter-bar">
         <Input
           placeholder="Search events"
@@ -131,6 +151,7 @@ useEffect(() => {
 
         <Button onClick={clearAllFilters}>Clear All Filters</Button>
       </div>
+      
       {events.length === 0 ? (
         <div style={{ padding: '2rem', textAlign: 'center', color: '#999' }}>
           No events found for the selected filters.

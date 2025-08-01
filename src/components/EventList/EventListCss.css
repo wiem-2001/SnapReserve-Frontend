@@ -98,3 +98,10 @@
 .ant-slider-dotActiveBorder {
   background-color: #021529 !important;
 }
+
+.section-title {
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  color: #021529;
+  font-weight: 600;
+}

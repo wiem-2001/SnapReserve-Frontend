@@ -22,7 +22,6 @@ import './Header.css';
 
 const menuItems = [
   { key: 'home', label: 'UpComming events', path: '/' },
-  { key: 'Recommended', label: 'Recommended for You', path: '/Recommended' },
   { key: 'resell', label: 'Resell Tickets', path: '/resell' },
   { key: 'deals', label: 'Deals', path: '/deals' }
 ];
@@ -47,9 +46,6 @@ function Header() {
         setFullName(null);
         setUserRole(null);
       }
-    } else {
-      setFullName(null);
-      setUserRole(null);
     }
   }, [token]);
 

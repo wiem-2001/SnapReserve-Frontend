@@ -9,6 +9,7 @@ const useEventStore = create((set, get) => ({
     event: null,
     loading: false,
     error: null,
+    recommendations : [],
 
     fetchEvents: async (filters = {}) => {
     try {
@@ -40,6 +41,19 @@ const useEventStore = create((set, get) => ({
     }
     },
 
+    fetchRecommendations: async () => {
+    try {
+      set({ loading: true });
+      const res = await axios.get(`${EventApi}/recommended-events`, {
+        withCredentials: true,
+      });
+       console.log("📦 API response:", res.data);
+      set({ recommendations: res.data.events, loading: false });
+    } catch (error) {
+      console.error("Error fetching recommendations:", error);
+      set({ error: error.message, loading: false });
+    }
+  },
 
     fetchEvent: async (id) => {
         try {
