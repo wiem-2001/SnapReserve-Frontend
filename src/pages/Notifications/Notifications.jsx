@@ -1,16 +1,25 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Layout from 'antd/es/layout/layout';
 import SidebarMenu from '../../AppLayout/SidebarMenu/SidebarMenu';
-import { Button, Result } from 'antd';
+import { Button, Result, Spin } from 'antd';
 import '../Notifications/Notifications.css';
+import useNotif from '../../stores/notificationStore';
 
 
 function Notifications() {
+  const { notifications, loading, fetchNotifications } = useNotif();
+  useEffect(() => {
+    fetchNotifications(); 
+  }, [fetchNotifications]);
+
   return (
     <div>
      <Layout style={{ minHeight: '100vh', background: 'white' }}>
            <SidebarMenu />
            <Layout.Content style={{ padding: '40px 24px', background: '#fff' }}>
+             {loading ? (
+                <Spin size="large" />
+             ): notifications.length === 0 ? (
              <div style={{ maxWidth: 600, margin: '0 auto', textAlign: 'center' }}>
                <Result
                   icon={
@@ -41,7 +50,30 @@ function Notifications() {
                     </Button>
                   }
                 />
-            </div>
+            </div>) : (
+              <div style={{ maxWidth: 800, margin: '0 auto' }}>
+            <h2 style={{ marginBottom: '1rem' }}>Notifications</h2>
+            <ul style={{ listStyle: 'none', padding: 0 }}>
+              {notifications.map((notif) => (
+                <li
+                  key={notif.id}
+                  style={{
+                    padding: '1rem',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    marginBottom: '1rem',
+                    backgroundColor: notif.read ? '#f9f9f9' : '#fffbe6',
+                  }}
+                >
+                  <strong>{notif.message}</strong>
+                  <br />
+                  <small>{new Date(notif.timestamp).toLocaleString()}</small>
+                </li>
+              ))}
+            </ul>
+          </div>
+            )
+            }
             </Layout.Content>
         </Layout>
     </div>
