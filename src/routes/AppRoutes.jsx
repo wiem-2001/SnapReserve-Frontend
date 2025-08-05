@@ -16,7 +16,7 @@ import Events from '../pages/Events';
 import PurchasedTickets from '../pages/purchased-tickets/PurchasedTickets.jsx';
 import Preferences from '../pages/Preferences.jsx';
 
-import AccountSettings from '../pages/AccountSettings.jsx';
+import AccountSettings from '../pages/AccountSettings/AccountSettings.jsx';
 import CreateEvent from '../pages/CreateEvent/CreateEvent.jsx';
 import OrganizerAnalytics from '../pages/OrganizerAnalytics.jsx';
 import PaymentInfo from '../pages/PaymentInfo.jsx';
@@ -26,6 +26,7 @@ import OrganizerEventDetails from '../pages/OrganizerEventDetails.jsx';
 import PaymentSuccessPage from '../pages/PaymentSuccess/PaymentSuccessPage.jsx';
 import ManageEvents from '../pages/ManageEvents/ManageEvents.jsx';
 import Notifications from '../pages/Notifications/Notifications.jsx';
+import OrganizerDashboard from '../pages/OrganizerDashboard/OrganizerDashboard.js';
 const AppRoutes = () => {
   return (
     <Routes>
@@ -54,6 +55,9 @@ const AppRoutes = () => {
         <Route path="/event-details/:id" element={<Layout><EventDetails /></Layout>} />
         <Route path="/organizer-event-details/:id" element={<Layout><OrganizerEventDetails /></Layout>} />
         <Route path="/purchase/success" element = {<PaymentSuccessPage />} />
+
+        <Route path="/organizerDashboard" element={<Layout ><OrganizerDashboard /></Layout>} />
+
         <Route path="*" element={<NotFound />} />
     </Routes>
   );
