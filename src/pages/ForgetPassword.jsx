@@ -6,30 +6,36 @@ import { useNavigate } from 'react-router-dom';
 
 
 const ForgetPasswordPage = () => {
-  const [email, setEmail] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+ const [email, setEmail] = useState('');
+ const [errorMessage, setErrorMessage] = useState('');
+ const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const forgetPassword = useAuthStore(state => state.forgetPassword);
+  const {forgetPassword} = useAuthStore();
   const navigate = useNavigate();
 
-  const handleForgetPassword = async (e) => {
-    e.preventDefault(); 
-    setErrorMessage('');
-    try {
-      await forgetPassword({ email });
-      navigate('/check-email');
-    } catch (err) {
-      const msg = err?.response?.data?.message || err?.message || "An error occurred.";
-      setErrorMessage(msg);
-    }
-  };
+const handleForgetPassword = async (e) => {
+  e.preventDefault();
+  setErrorMessage('');
+   setIsSubmitting(true);
+  try {
+    await forgetPassword({ email }); 
+    navigate('/check-email');
+  } catch (err) {
+    console.log('Caught error:', err);
+    setErrorMessage(err);
+  }finally {
+    setIsSubmitting(false);
+  }
+};
+
+
 
   return (
     <div className="app-container">
       <div className="login-container">
         <div className="login-left">
           <h1>Forgot Password</h1>
-          <form onSubmit={handleForgetPassword} className="login-form">
+          <form onSubmit={handleForgetPassword} className="login-form" noValidate>
             <input
               type="email"
               name="email"
@@ -44,8 +50,13 @@ const ForgetPasswordPage = () => {
               </div>
             )}
 
-            <button type="submit" className="login-button">
-              Send Reset Link
+            <button type="submit" className="login-button" disabled={isSubmitting}>
+            
+               {isSubmitting ? (
+                  <span>Processing...</span> 
+                ) : (
+                  <span>Send Reset Link</span>
+                )}
             </button>
           </form>
           <div className="signup-link">
@@ -63,7 +74,7 @@ const ForgetPasswordPage = () => {
           </p>
           <div className="features">
             <p> Instant ticket delivery</p>
-            <p> Easy refunds & exchanges</p>
+            <p> Personalized event recommendations</p>
             <p> Real-time event updates</p>
           </div>
         </div>

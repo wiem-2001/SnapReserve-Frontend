@@ -15,6 +15,7 @@ import {
   UserOutlined,
   DownOutlined,
   BellOutlined,
+  HeartOutlined,
 } from '@ant-design/icons';
 import logo from '../../assets/logo.png';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -27,8 +28,8 @@ const { Text } = Typography;
 
 const menuItems = [
   { key: 'home', label: 'UpComming events', path: '/' },
-  { key: 'resell', label: 'Resell Tickets', path: '/resell' },
   { key: 'deals', label: 'Deals', path: '/deals' },
+   { key: 'favorites', label: 'Favorites', path: '/favorites' },
 ];
 
 function Header() {
@@ -111,6 +112,9 @@ function Header() {
           Purchased Tickets
         </Menu.Item>
       )}
+     {userRole !== 'organizer' && (  <Menu.Item key="favorites" icon={<HeartOutlined style={{ color: '#021529' }} />}>
+        Favorites
+      </Menu.Item>)}
 
       <Menu.Item key="logout" icon={<LogoutOutlined style={{ color: '#021529' }} />}>
         Logout
@@ -178,11 +182,14 @@ function Header() {
   return (
     <div className="header-container">
       <div className="header-inner">
-        <div className="logo-section" onClick={() => navigate('/')}>
+       
+        {userRole !== 'organizer' ? ( <div className="logo-section" onClick={() => navigate('/')}>
           <img src={logo} alt="Logo" className="logo-image" />
           SnapReserve
-        </div>
-
+        </div>):( <div className="logo-section" onClick={() => navigate('/manage-events')}>
+          <img src={logo} alt="Logo" className="logo-image" />
+          SnapReserve
+        </div>)}
         {userRole !== 'organizer' && (
           <Menu
             onClick={onMenuClick}

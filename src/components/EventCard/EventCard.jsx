@@ -6,14 +6,14 @@ import {
   HeartOutlined, 
   HeartFilled, 
   EditOutlined, 
-  FieldTimeOutlined  ,
+  FieldTimeOutlined, 
   DeleteOutlined 
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../../stores/authStore';
-import ConfirmModal from '../ConfirmModal/ConfirmModal';
 import useEventStore from '../../stores/eventStore';
+import ConfirmModal from '../ConfirmModal/ConfirmModal';
 import './EventCard.css'; 
 
 const CountdownTimer = ({ targetDate }) => {
@@ -65,14 +65,14 @@ const getNearestDateEntry = (dates = []) => {
 };
 
 const EventCard = ({ event, onDelete }) => {
-  const [saved, setSaved] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
   const nearestDate = getNearestDateEntry(event.dates);
-  const { user: authuser, getMe } = useAuthStore();
+  const { user: authUser, getMe } = useAuthStore();
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState(null);
-  const { deleteEvent } = useEventStore();
+  const { deleteEvent, toggleFavorite, favoriteEvents } = useEventStore();
 
   const handleDeleteClick = (e, eventId) => {
     e.stopPropagation();
@@ -80,15 +80,27 @@ const EventCard = ({ event, onDelete }) => {
     setShowConfirm(true);
   };
 
-  const handleSaveClick = (e) => {
+  const handleToggleFavorite = async (e) => {
     e.stopPropagation();
-    setSaved(!saved);
+    if (!authUser?.user) {
+      message.info('Please log in to favorite events');
+      navigate('/login', { state: { from: window.location.pathname } });
+      return;
+    }
+    try {
+      const response = await toggleFavorite(event.id);
+      setIsFavorited(response.isFavorited);
+      message.success(response.isFavorited ? 'Event added to favorites' : 'Event removed from favorites');
+      await useEventStore.getState().fetchFavorites(); 
+    } catch (error) {
+      message.error(error || 'Failed to toggle favorite');
+    }
   };
 
   const handleCardDetails = (eventId) => {
-    if(authuser?.user?.role === "organizer") {
+    if (authUser?.user?.role === "organizer") {
       navigate(`/organizer-event-details/${eventId}`);
-    } else  {
+    } else {
       navigate(`/event-details/${eventId}`);
     }
   };
@@ -110,15 +122,38 @@ const EventCard = ({ event, onDelete }) => {
   };
 
   useEffect(() => {
-    const fetchUser = async () => {
+    let isMounted = true;
+
+    const fetchUserAndFavorites = async () => {
       try {
-        await getMe();
-      } catch(err) {
-        message.error(err.response?.data?.message || 'Failed to load user data');
+
+        if (!authUser?.user && isMounted) {
+          await getMe();
+        }
+
+        if (authUser?.user?.role === "attendee" && isMounted) {
+          await useEventStore.getState().fetchFavorites();
+        }
+      } catch (err) {
+        if (isMounted) {
+          message.error(err.response?.data?.message || 'Failed to load user data or favorites');
+        }
       }
     };
-    fetchUser();
-  }, []);
+
+    fetchUserAndFavorites();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [getMe]); 
+
+  useEffect(() => {
+    if (favoriteEvents && event?.id) {
+      const isEventFavorited = favoriteEvents.some(fav => fav.eventId === event.id);
+      setIsFavorited(isEventFavorited);
+    }
+  }, [favoriteEvents, event?.id]);
 
   return (
     <div
@@ -139,11 +174,8 @@ const EventCard = ({ event, onDelete }) => {
           />
         }
       >
-       
-       
-         
-       {authuser?.user?.role === "organizer" ? (
-           <div className="event-card-action-btns">
+        {authUser?.user?.role === "organizer" ? (
+          <div className="event-card-action-btns">
             <Button
               type="text"
               icon={<EditOutlined style={{ color: '#ffd72d' }} />}
@@ -160,36 +192,36 @@ const EventCard = ({ event, onDelete }) => {
               className="event-card-action-btn"
             />
           </div>   
-       ):(
+        ) : (
           <Button
             type="text"
-            icon={saved ? <HeartFilled style={{ color: '#ff4d4f' }} /> : <HeartOutlined />}
-            onClick={handleSaveClick}
+            icon={isFavorited ? <HeartFilled style={{ color: '#ff4d4f' }} /> : <HeartOutlined />}
+            onClick={handleToggleFavorite}
             className="event-card-save-btn"
           />
-       )}
+        )}
         
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <h3 className="event-card-title">{event.title}</h3>
           <p className="event-card-description">{event.description}</p>
         
-      <div className="event-card-meta">
-        <div className="event-card-meta-item">
-          <CalendarOutlined className="event-card-meta-icon" />
-          <span className="event-card-meta-text">
-            {nearestDate
-              ? `${dayjs(nearestDate.date).format('YYYY-MM-DD')} at ${dayjs(nearestDate.date).format('HH:mm')}`
-              : 'No upcoming date'}
-          </span>
-        </div>
+          <div className="event-card-meta">
+            <div className="event-card-meta-item">
+              <CalendarOutlined className="event-card-meta-icon" />
+              <span className="event-card-meta-text">
+                {nearestDate
+                  ? `${dayjs(nearestDate.date).format('YYYY-MM-DD')} at ${dayjs(nearestDate.date).format('HH:mm')}`
+                  : 'No upcoming date'}
+              </span>
+            </div>
 
-        <div className="event-card-meta-item">
-          <EnvironmentOutlined className="event-card-meta-icon" />
-          <span className="event-card-meta-text">
-            {nearestDate ? nearestDate.location : 'N/A'}
-          </span>
-        </div>
-      </div>
+            <div className="event-card-meta-item">
+              <EnvironmentOutlined className="event-card-meta-icon" />
+              <span className="event-card-meta-text">
+                {nearestDate ? nearestDate.location : 'N/A'}
+              </span>
+            </div>
+          </div>
         </div>
 
         {isHovered && (
@@ -203,8 +235,8 @@ const EventCard = ({ event, onDelete }) => {
                 e.stopPropagation();
                 handleCardDetails(event.id);
               }}
-            >
-              Book Now
+            >    {authUser?.user?.role === "attendee" ? "Book Now" : "View Details"}
+              
             </Button>
           </div>
         )}

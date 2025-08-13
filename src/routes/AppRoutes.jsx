@@ -14,7 +14,7 @@ import CheckRestPasswordEmail from '../pages/CheckRestPasswordEmail';
 import Layout from '../AppLayout/Layout';
 import Events from '../pages/Events';
 import PurchasedTickets from '../pages/purchased-tickets/PurchasedTickets.jsx';
-import Preferences from '../pages/Preferences.jsx';
+import Preferences from '../pages/Favorites/Favorites.jsx';
 
 import AccountSettings from '../pages/AccountSettings/AccountSettings.jsx';
 import CreateEvent from '../pages/CreateEvent/CreateEvent.jsx';
@@ -27,6 +27,7 @@ import PaymentSuccessPage from '../pages/PaymentSuccess/PaymentSuccessPage.jsx';
 import ManageEvents from '../pages/ManageEvents/ManageEvents.jsx';
 import Notifications from '../pages/Notifications/Notifications.jsx';
 import OrganizerDashboard from '../pages/OrganizerDashboard/OrganizerDashboard.js';
+import Favorites from '../pages/Favorites/Favorites.jsx';
 const AppRoutes = () => {
   return (
     <Routes>
@@ -45,7 +46,7 @@ const AppRoutes = () => {
         <Route path="/profile" element={<Layout><Profile /></Layout>} />
         <Route path="/manage-events" element={<ManageEvents/>} />
         <Route path="/purchased-tickets" element={<Layout><PurchasedTickets/></Layout>} />
-        <Route path="/preferences" element={<Preferences/>} />
+        <Route path="/favorites" element={<Layout><Favorites/></Layout>} />
         <Route path="/payment-info" element={<PaymentInfo/>} />
         <Route path="/notifications" element={<Layout><Notifications/></Layout>} />
         <Route path="/account-settings" element={<AccountSettings/>} />

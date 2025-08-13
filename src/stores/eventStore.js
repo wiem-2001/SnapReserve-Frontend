@@ -10,7 +10,9 @@ const useEventStore = create((set, get) => ({
     loading: false,
     error: null,
     recommendations : [],
-
+    total: 0,
+    favoriteEvents:[],
+    
     fetchEvents: async (filters = {}) => {
     try {
         set({ loading: true });
@@ -19,12 +21,17 @@ const useEventStore = create((set, get) => ({
         paramsSerializer: (params) =>
             qs.stringify(params, { arrayFormat: 'comma' }),
         });
-        set({ events: res.data, loading: false });
+        set({ 
+        events: res.data.data, 
+        total: res.data.data.total, 
+        page: res.data.page, 
+        limit: res.data.limit,
+        loading: false 
+        });
     } catch (error) {
         set({ error: error.message, loading: false });
     }
     },
-
 
     fetchOrganizerEvents: async (filters = {}) => {
     try {
@@ -35,11 +42,18 @@ const useEventStore = create((set, get) => ({
             qs.stringify(params, { arrayFormat: 'comma' }),
         withCredentials: true, 
         });
-        set({ events: res.data, loading: false });
+        set({ 
+        events: res.data.data,
+        total: res.data.total,
+        page: res.data.page,
+        limit: res.data.limit,
+        loading: false 
+        });
     } catch (error) {
         set({ error: error.message, loading: false });
     }
     },
+
 
     fetchRecommendations: async () => {
     try {
@@ -49,7 +63,6 @@ const useEventStore = create((set, get) => ({
       });
       set({ recommendations: res.data.events, loading: false });
     } catch (error) {
-      console.error("Error fetching recommendations:", error);
       set({ error: error.message, loading: false });
     }
   },
@@ -111,8 +124,36 @@ const useEventStore = create((set, get) => ({
         set({ error: error.message, loading: false });
         throw error;
       }
+    },
+    fetchFavorites: async () => {
+    try {
+      set({ loading: true });
+      const res = await axios.get(`${EventApi}/get-favorite-events`, {
+        withCredentials: true,
+      });
+      set({ 
+        favoriteEvents: res.data,
+        loading: false
+      });
+    } catch (error) {
+      set({ 
+        error: error.message,
+        loading: false
+      });
     }
-    
+  },
+    toggleFavorite : async (eventId) => {
+    try {
+      set({ loading: true });
+      const res = await axios.put(`${EventApi}/toggle-favorite/${eventId}`, {},{
+        withCredentials: true,
+      }); 
+      set({ loading: false });
+      console.log('Toggle favorite response:', res.data);
+      return res.data;
+    } catch (error) {
+      throw error.response?.data?.error || error.message;
+    }},
 }));
 
 export default useEventStore;

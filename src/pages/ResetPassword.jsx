@@ -2,21 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './LoginPage/LoginPage.css'; 
 import logo from '../assets/logo.png'; 
-import useAuthStore from '../stores/authStore'; // if using Zustand
+import useAuthStore from '../stores/authStore';
 
 const ResetPassword = () => {
   const [formData, setFormData] = useState({
     newPassword: '',
     confirmPassword: ''
   });
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const navigate = useNavigate();
   const location = useLocation();
-  const resetPassword = useAuthStore(state => state.resetPassword); // Zustand
+  const resetPassword = useAuthStore(state => state.resetPassword);
 
   const [userId, setUserId] = useState('');
   const [token, setToken] = useState('');
 
-  // Parse token & id from URL
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     setToken(params.get('token') || '');
@@ -26,26 +29,35 @@ const ResetPassword = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    setErrorMessage('');
+    setSuccessMessage('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage('');
+    setSuccessMessage('');
 
     if (formData.newPassword !== formData.confirmPassword) {
-      alert('Passwords do not match.');
+      setErrorMessage('Passwords do not match.');
       return;
     }
 
+    setIsSubmitting(true);
     try {
       await resetPassword({
         userId,
         token,
         newPassword: formData.newPassword
       });
-      alert('Password reset successful. You can now log in.');
-      navigate('/login');
+      setSuccessMessage('Password reset successful. You can now log in.');
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
     } catch (err) {
-      alert(err.message || 'Failed to reset password');
+      setErrorMessage(err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -54,7 +66,7 @@ const ResetPassword = () => {
       <div className="login-container">
         <div className="login-left">
           <h1>Reset Password</h1>
-          <form onSubmit={handleSubmit} className="login-form">
+          <form onSubmit={handleSubmit} className="login-form" noValidate>
             <input
               type="password"
               name="newPassword"
@@ -71,8 +83,18 @@ const ResetPassword = () => {
               onChange={handleChange}
               required
             />
-            <button type="submit" className="login-button">
-              Reset Password
+            {errorMessage && (
+              <div className="error-message" style={{ color: 'red', marginBottom: '10px' }}>
+                {errorMessage}
+              </div>
+            )}
+            {successMessage && (
+              <div className="success-message" style={{ color: 'green', marginBottom: '10px' }}>
+                {successMessage}
+              </div>
+            )}
+            <button type="submit" className="login-button" disabled={isSubmitting}>
+              {isSubmitting ? 'Processing...' : 'Reset Password'}
             </button>
           </form>
           <div className="signup-link">

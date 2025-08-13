@@ -12,7 +12,9 @@ const SignupPage = () => {
     password: '',
     confirmPassword: '',  
     phone: '',
-    role: 'attendee'
+    role: 'attendee',
+    birth_date: '' ,
+    gender: '', 
   });
 
   const [errors, setErrors] = useState({});
@@ -65,6 +67,14 @@ const SignupPage = () => {
       newErrors.role = 'Role is required';
     }
 
+    if (!formData.gender) {
+      newErrors.gender = 'Gender is required';
+    }
+
+    if (!formData.birth_date) {
+      newErrors.birth_date = 'Birth date is required';
+    }
+
     setErrors(newErrors);
 
     return Object.keys(newErrors).length === 0;
@@ -80,6 +90,9 @@ const handleSubmit = async (e) => {
   try {
     setIsSubmitting(true);
     const { confirmPassword, ...signupData } = formData;
+    if (signupData.birth_date) {
+      signupData.birth_date = new Date(signupData.birth_date).toISOString();
+    }
     await signup(signupData);
     navigate('/verify-email');
   } catch (error) {
@@ -99,7 +112,7 @@ const handleSubmit = async (e) => {
     <div className="app-container">
       <div className="signup-container">
         <div className="signup-left"> 
-          <h1>Create Account</h1>
+          <h1>Sign Up</h1>
           <form onSubmit={handleSubmit} className="signup-form" noValidate> 
             <div className="form-group">
               <input
@@ -154,7 +167,29 @@ const handleSubmit = async (e) => {
               />
               {errors.phone && <div className="error-message">{errors.phone}</div>}
             </div>
-
+          <div className="form-group">
+          <label>Birth Date</label>
+          <input
+            type="date"
+            name="birth_date"
+            value={formData.birth_date}
+            onChange={handleChange}
+          />
+          {errors.birth_date && <div className="error-message">{errors.birth_date}</div>}
+        </div>
+        <div className="form-group">
+          <label>Gender</label>
+          <select
+            name="gender"
+            value={formData.gender}
+            onChange={handleChange}
+          >
+            <option value="">-- Select Gender --</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+          {errors.gender && <div className="error-message">{errors.gender}</div>}
+        </div>
             <div className="role-selection">
               <label className={`role-option ${formData.role === 'attendee' ? 'selected' : ''}`}>
                 <input
@@ -218,14 +253,13 @@ const handleSubmit = async (e) => {
                 <img src={logo} className="logo" alt="SnapReserve Logo" />
                 <h2>SnapReserve </h2>
               </div>
-                
                   <p className="slogan">
                     Secure your spot at the hottest events in town with just a few clicks.
                   </p>
                   <div className="features">
                     <p> Instant ticket delivery</p>
-                    <p> Easy refunds & exchanges</p>
-                    <p>Real-time event updates</p>
+                    <p> Personalized event recommendations</p>
+                    <p> Real-time event updates</p>
                   </div>
                 </div>
       </div>

@@ -9,6 +9,7 @@ const useAuthStore = create((set) => ({
   token:  Cookies.get('token') ,
   loading: false,
   error: null,
+  devices: [],
   setToken: (token) => set({ token }),
 
   signup: async (data) => {
@@ -30,6 +31,7 @@ const useAuthStore = create((set) => ({
       const { token } = res.data;
       Cookies.set('token', token, { expires: 7, secure: true, sameSite: 'strict' });
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      localStorage.setItem("firstVisitDone", "true");
       set({ token, loading: false });
       return token;
     } catch (error) {
@@ -63,97 +65,127 @@ const useAuthStore = create((set) => ({
   },
 
   
-forgetPassword: async (data) => {
-  set({ loading: true, error: null });
-  try {
-    const res = await axios.post(`${AuthApi}/forgot-password`, data);
-    set({ loading: false });
-    return res.data;
-  } catch (error) {
-    set({ loading: false, error: error.response?.data?.message || error.message });
-    throw error;
-  }
-},
-
-resetPassword: async ({ userId, token, newPassword }) => {
-  set({ loading: true, error: null });
-  try {
-    const res = await axios.post(`${AuthApi}/reset-password`, {
-      userId,
-      token,
-      newPassword,
-    });
-    set({ loading: false });
-    return res.data;
-  } catch (error) {
-    set({ loading: false, error: error.response?.data?.message || error.message });
-    throw error;
-  }
-},
-
-updateImageProfil: async (file) => {
-  set({ loading: true, error: null });
-  try {
-    const formData = new FormData();
-    formData.append('image', file);
-
-    const res = await axios.post(`${AuthApi}/upload-profile`, formData, {
-      headers: { 
-        'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${Cookies.get('token')}`
-      },
-      withCredentials: true,
-    });
-
-    set((state) => ({
-      user: { 
-        ...state.user, 
-        avatar: res.data.avatarUrl,
-        profile_image: res.data.image 
-      },
-      loading: false
-    }));
-    
-    return res.data;
-  } catch (error) {
-    set({ loading: false, error: error.response?.data?.message || error.message });
-    throw error;
-  }
-},
-
-updateProfile: async (profileData) => {
+  forgetPassword: async (data) => {
     set({ loading: true, error: null });
     try {
-      const res = await axios.put(`${AuthApi}/update-profile`, profileData, { withCredentials: true });
-      set({ loading: false, user: res.data.user });
+      const res = await axios.post(`${AuthApi}/forgot-password`, data);
+      set({ loading: false });
+      return res.data;
+    } catch (error) {
+      const message = error.response?.data?.message || error.message || 'Unknown error';
+      set({ loading: false, error: message });
+      throw message;
+    }
+  },
+
+  resetPassword: async ({ userId, token, newPassword }) => {
+    set({ loading: true, error: null });
+    try {
+      const res = await axios.post(`${AuthApi}/reset-password`, {
+        userId,
+        token,
+        newPassword,
+      });
+      set({ loading: false });
+      return res.data;
+    } catch (error) {
+      set({ loading: false, error: error.response?.data?.message || error.message });
+      throw error.response?.data?.message;
+    }
+  },
+
+  updateImageProfil: async (file) => {
+    set({ loading: true, error: null });
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const res = await axios.post(`${AuthApi}/upload-profile`, formData, {
+        headers: { 
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${Cookies.get('token')}`
+        },
+        withCredentials: true,
+      });
+
+      set((state) => ({
+        user: { 
+          ...state.user, 
+          avatar: res.data.avatarUrl,
+          profile_image: res.data.image 
+        },
+        loading: false
+      }));
+      
       return res.data;
     } catch (error) {
       set({ loading: false, error: error.response?.data?.message || error.message });
       throw error;
     }
   },
-updatePassword: async ({ currentPassword, newPassword, confirmPassword }) => {
-  set({ loading: true, error: null });
-  try {
-    const res = await axios.put(`${AuthApi}/update-password`, {
-      currentPassword,
-      newPassword,
-      confirmPassword
-    }, { 
-      withCredentials: true,
-      headers: {
-        'Authorization': `Bearer ${Cookies.get('token')}`
+
+  updateProfile: async (profileData) => {
+      set({ loading: true, error: null });
+      try {
+        const res = await axios.put(`${AuthApi}/update-profile`, profileData, { withCredentials: true });
+        set({ loading: false, user: res.data.user });
+        return res.data;
+      } catch (error) {
+        set({ loading: false, error: error.response?.data?.message || error.message });
+        throw error;
       }
-    });
-    set({ loading: false });
-    return { success: true, message: res.data.message || 'Password updated successfully' };
-  } catch (error) {
-    const errorMsg = error.response?.data?.message || error.message;
-    set({ loading: false, error: errorMsg });
-    return { success: false, message: errorMsg };
+    },
+  updatePassword: async ({ currentPassword, newPassword, confirmPassword }) => {
+    set({ loading: true, error: null });
+    try {
+      const res = await axios.put(`${AuthApi}/update-password`, {
+        currentPassword,
+        newPassword,
+        confirmPassword
+      }, { 
+        withCredentials: true,
+        headers: {
+          'Authorization': `Bearer ${Cookies.get('token')}`
+        }
+      });
+      set({ loading: false });
+      return { success: true, message: res.data.message || 'Password updated successfully' };
+    } catch (error) {
+      const errorMsg = error.response?.data?.message || error.message;
+      set({ loading: false, error: errorMsg });
+      return { success: false, message: errorMsg };
+    }
+  },
+
+  deleteUser: async () => {
+    set({ loading: true, error: null });
+    try {
+      await axios.delete(`${AuthApi}/delete-account`, {
+        withCredentials: true
+      });
+      Cookies.remove('token');
+      set({ user: null, token: null, loading: false });
+      return { success: true, message: 'Account deleted successfully.' };
+    } catch (error) {
+      const errorMsg = error.response?.data?.message || error.message || 'Unknown error';
+      set({ loading: false, error: errorMsg });
+      throw new Error(errorMsg);
+    }
+  },
+
+  fetchUserDevices : async () => {
+    try {
+      set({ loading: true });
+      const res = await axios.get(`${AuthApi}/devices`, { withCredentials: true });
+      console.log('Fetched devices:', res.data);
+      set({ devices: res.data, loading: false });
+    } catch (error) {
+       set({ error: error.message, loading: false });
+    }
   }
-},
+
 }));
+
 
 
 export default useAuthStore;

@@ -19,7 +19,7 @@ import {
   DeleteOutlined,
   InfoCircleOutlined 
 } from '@ant-design/icons';
-import { useParams, useNavigate , useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import dayjs from 'dayjs';
 import useEventStore from '../../stores/eventStore';
 import useAuthStore from '../../stores/authStore';
@@ -33,8 +33,8 @@ const { Title, Text } = Typography;
 const EventDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const location   = useLocation(); 
-  const { event, fetchEvent, loading: eventLoading, error: eventError, deleteEvent } = useEventStore();
+  const location = useLocation(); 
+  const { event, fetchEvent, loading: eventLoading, error: eventError, deleteEvent, toggleFavorite, favoriteEvents } = useEventStore();
   const { user: authUser, getMe } = useAuthStore();
   const { 
     createCheckoutSession, 
@@ -46,11 +46,10 @@ const EventDetails = () => {
   const [isFavorited, setIsFavorited] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTierIds, setSelectedTierIds] = useState([]);
-  const [calendarValue, setCalendarValue] = useState(dayjs());
+  const [calendarValue, setCalendarValue] = useState(null);
   const [quantities, setQuantities] = useState({});
   const [userLoading, setUserLoading] = useState(false);
   const [isFraudModalVisible, setIsFraudModalVisible] = useState(false);
-
 
   const availableDates = useMemo(() => 
     event?.dates?.map(d => ({
@@ -67,7 +66,7 @@ const EventDetails = () => {
     const futureDates = availableDates.filter(d => 
       d.dayjsDate.isSame(today) || d.dayjsDate.isAfter(today)
     );
-    if (futureDates.length === 0) return null;
+    if (futureDates.length === 0) return availableDates[0] || null;
     return futureDates.sort((a, b) => a.dayjsDate.diff(b.dayjsDate))[0];
   }, [availableDates]);
 
@@ -96,15 +95,18 @@ const EventDetails = () => {
   useEffect(() => {
     let isMounted = true;
     
-    const fetchUser = async () => {
+    const fetchUserAndFavorites = async () => {
       try {
         setUserLoading(true);
         if (!authUser && isMounted) {
           await getMe();
         }
+        if (authUser?.user?.role === "attendee" && isMounted) {
+          await useEventStore.getState().fetchFavorites();
+        }
       } catch (err) {
         if (isMounted) {
-          message.error(err.response?.data?.message || 'Failed to load user data');
+          message.error(err.response?.data?.message || 'Failed to load user data or favorites');
         }
       } finally {
         if (isMounted) {
@@ -113,7 +115,7 @@ const EventDetails = () => {
       }
     };
 
-    fetchUser();
+    fetchUserAndFavorites();
 
     return () => {
       isMounted = false;
@@ -121,66 +123,98 @@ const EventDetails = () => {
   }, [authUser, getMe]);
 
   useEffect(() => {
-    if (availableDates.length === 0) {
-      setSelectedDate(null);
-      setCalendarValue(dayjs());
-      return;
+    if (favoriteEvents && id) {
+      const isEventFavorited = favoriteEvents.some(fav => fav.eventId === id);
+      setIsFavorited(isEventFavorited);
     }
-
-    const closestDate = findClosestUpcomingDate() || availableDates[0];
-    
-    if (
-      !selectedDate || 
-      !closestDate.dayjsDate.isSame(selectedDate.dayjsDate) ||
-      closestDate.location !== selectedDate.location
-    ) {
-      setSelectedDate(closestDate);
-      setCalendarValue(closestDate.dayjsDate);
-    }
-  }, [availableDates, findClosestUpcomingDate, selectedDate]);
+  }, [favoriteEvents, id]);
 
   useEffect(() => {
-    if (event?.pricingTiers?.length) {
-      const initialQuantities = {};
-      const allTierIds = [];
-      
-      event.pricingTiers.forEach(tier => {
-        initialQuantities[tier.id] = quantities[tier.id] || 1;
-        allTierIds.push(tier.id);
-      });
-
-      if (JSON.stringify(allTierIds) !== JSON.stringify(selectedTierIds)) {
-        setSelectedTierIds(allTierIds);
-      }
-      
-      setQuantities(prev => ({ ...prev, ...initialQuantities }));
+    if (availableDates.length === 0) {
+      setSelectedDate(null);
+      setCalendarValue(null);
+      return;
     }
-  }, [event?.pricingTiers]); 
-  const disabledDate = useCallback((current) => {
-    if (!current) return true;
-    return !availableDates.some(d => d.dayjsDate.isSame(current.startOf('day')));
-  }, [availableDates]);
+    const closestDate = findClosestUpcomingDate();
+    setSelectedDate(closestDate);
+    setCalendarValue(closestDate ? closestDate.dayjsDate : dayjs());
+  }, [availableDates, findClosestUpcomingDate]);
 
-  const dateCellRender = useCallback((value) => {
-    const dateInfo = availableDates.find(d => d.dayjsDate.isSame(value.startOf('day')));
-    return dateInfo ? (
-    <Text type="secondary" style={{ fontSize: 15,color:'black',fontWeight:'bold' }}>{dateInfo.time} — {dateInfo.location}</Text>
+  // Calendar-related functions
+  const disabledDate = useCallback(
+    (current) => {
+      if (!current) return true;
+      return !availableDates.some((d) => d.dayjsDate.isSame(current.startOf('day')));
+    },
+    [availableDates]
+  );
 
-    ) : null;
-  }, [availableDates]);
+  const dateCellRender = useCallback(
+    (value) => {
+      const dateInfo = availableDates.find((d) => d.dayjsDate.isSame(value.startOf('day')));
+      if (!dateInfo) return null;
+      const isSelected = selectedDate && selectedDate.dayjsDate.isSame(value.startOf('day'));
+      return (
+        <div
+          style={{
+            background: isSelected ? '#d1ac09ff' : 'transparent',
+            color: isSelected ? '#fff' : 'black',
+            borderRadius: 4,
+            padding: 4,
+            cursor: 'pointer',
+          }}
+        >
+          <Text
+            strong={isSelected}
+            style={{
+              fontSize: 15,
+              color: isSelected ? '#fff' : 'black',
+            }}
+          >
+            <div>{dateInfo.time}</div>
+            <div>{dateInfo.location}</div>
+          </Text>
+        </div>
+      );
+    },
+    [availableDates, selectedDate]
+  );
 
-  const onSelectDate = useCallback((value) => {
-    const dateInfo = availableDates.find(d => d.dayjsDate.isSame(value.startOf('day')));
-    setSelectedDate(dateInfo || null);
-  }, [availableDates]);
+  const onSelectDate = useCallback(
+    (value) => {
+      const dateInfo = availableDates.find((d) => d.dayjsDate.isSame(value.startOf('day')));
+      if (dateInfo) {
+        setSelectedDate(dateInfo);
+        setCalendarValue(value);
+      }
+    },
+    [availableDates]
+  );
 
   const onPanelChange = useCallback((value) => {
     setCalendarValue(value);
   }, []);
 
-  const toggleFavorite = useCallback(() => setIsFavorited(prev => !prev), []);
+  const handleToggleFavorite = useCallback(async () => {
+    if (!authUser?.user) {
+      message.info('Please log in to favorite events');
+      navigate('/login', { state: { from: location.pathname } });
+      return;
+    }
+    try {
+      const response = await toggleFavorite(id);
+      console.log('Toggle favorite response:', response);
+      setIsFavorited(response.isFavorited);
+      message.success(response.isFavorited ? 'Event added to favorites' : 'Event removed from favorites');
+      await useEventStore.getState().fetchFavorites();
+    } catch (error) {
+      message.error(error || 'Failed to toggle favorite');
+    }
+  }, [authUser, id, toggleFavorite, navigate, location]);
+
   const handleDeleteClick = useCallback((e) => {
     e.stopPropagation();
+    console.log("triggered")
     setShowConfirm(true);
   }, []);
 
@@ -213,28 +247,7 @@ const EventDetails = () => {
     }));
   }, []);
 
-    useEffect(() => {
-    if (event?.pricingTiers?.length) {
-      const initialQuantities = {};
-      const allTierIds = [];
-
-      event.pricingTiers.forEach(tier => {
-        if (tier.capacity > 0) {
-          initialQuantities[tier.id] = quantities[tier.id] || 1;
-          allTierIds.push(tier.id);
-        }
-      });
-
-      if (JSON.stringify(allTierIds) !== JSON.stringify(selectedTierIds)) {
-        setSelectedTierIds(allTierIds);
-      }
-
-      setQuantities(prev => ({ ...prev, ...initialQuantities }));
-    }
-  }, [event?.pricingTiers]);
-
-
-    const totalPrice = useMemo(() => 
+  const totalPrice = useMemo(() => 
     selectedTierIds.reduce((sum, tierId) => {
       const tier = event?.pricingTiers?.find(t => t.id === tierId);
       const qty = quantities[tierId] || 0;
@@ -244,10 +257,10 @@ const EventDetails = () => {
   );
 
   const handleCheckout = useCallback(async () => {
-    if(!authUser?.user) {
-       message.info('Please log in to buy tickets');
-       navigate('/login', { state: { from: location.pathname } });
-       return ;
+    if (!authUser?.user) {
+      message.info('Please log in to buy tickets');
+      navigate('/login', { state: { from: location.pathname } });
+      return;
     }
     if (!selectedDate || selectedTierIds.length === 0 || totalPrice === 0) return;
 
@@ -271,12 +284,11 @@ const EventDetails = () => {
     } catch (error) {
       if (error.response?.status === 403) {
         setIsFraudModalVisible(true);
-      }else  {
-          message.error(error.message || 'Failed to initiate checkout');
+      } else {
+        message.error(error.message || 'Failed to initiate checkout');
       }
-     
     }
-  }, [authUser, navigate, location,selectedDate, selectedTierIds, totalPrice, quantities, createCheckoutSession, event?.id]);
+  }, [authUser, navigate, location, selectedDate, selectedTierIds, totalPrice, quantities, createCheckoutSession, event?.id]);
 
   if (eventLoading || userLoading) {
     return (
@@ -348,7 +360,7 @@ const EventDetails = () => {
                 <HeartFilled style={{ color: '#ff4d4f', fontSize: 24 }} /> : 
                 <HeartOutlined style={{ fontSize: 24 }} />
               }
-              onClick={toggleFavorite}
+              onClick={handleToggleFavorite}
               style={{ position: 'absolute', top: 16, right: 16 }}
             />
           </Tooltip>
@@ -370,13 +382,11 @@ const EventDetails = () => {
         )}
       </div>
 
-      
       <div style={{ marginBottom: 24, textAlign: 'left' }}>
         <Title level={2}>Description</Title>
         <Text style={{ fontSize: 16, lineHeight: 1.5 }}>{event.description}</Text>
       </div>
 
-      
       <div style={{ marginBottom: 24, textAlign: 'left' }}>
         <Title level={2}>Available Dates & Locations</Title>
         <Calendar
@@ -388,26 +398,26 @@ const EventDetails = () => {
           onPanelChange={onPanelChange}
           style={{ border: '1px solid #ddd', borderRadius: 8 }}
         />
-       
       </div>
-    {authUser?.user?.role !== "organizer" && (
-      <div>
-        {selectedDate && (
-          <div style={{ marginTop: 12 }}>
-          <Text strong>
-            {selectedDate.dayjsDate.format('YYYY-MM-DD')} at {selectedDate.time} — {selectedDate.location}
-            </Text>
-          </div>
-        )}
 
-        <div style={{ marginBottom: 24, textAlign: 'left' }}>
-          <Title level={2}>Select Ticket Types & Quantities</Title>
+      {authUser?.user?.role !== "organizer" && (
+        <div>
+          {selectedDate && (
+            <div style={{ marginTop: 12 }}>
+              <Text strong>
+                {selectedDate.dayjsDate.format('YYYY-MM-DD')} at {selectedDate.time} — {selectedDate.location}
+              </Text>
+            </div>
+          )}
 
-          <Checkbox.Group
-            value={selectedTierIds}
-            onChange={handleTierChange}
-            style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
-          >
+          <div style={{ marginBottom: 24, textAlign: 'left' }}>
+            <Title level={2}>Select Ticket Types & Quantities</Title>
+
+            <Checkbox.Group
+              value={selectedTierIds}
+              onChange={handleTierChange}
+              style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
+            >
               {event.pricingTiers.map(tier => (
                 <Checkbox
                   key={tier.id}
@@ -429,73 +439,72 @@ const EventDetails = () => {
               ))}
             </Checkbox.Group>
 
-          {selectedTierIds.map(tierId => {
-            const tier = event.pricingTiers.find(t => t.id === tierId);
-            const currentQty = quantities[tierId] || 0;
+            {selectedTierIds.map(tierId => {
+              const tier = event.pricingTiers.find(t => t.id === tierId);
+              const currentQty = quantities[tierId] || 0;
 
-            return (
-              <div
-                key={tierId}
-                style={{
-                  marginTop: 12,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 16,
-                  padding: '8px 12px',
-                  border: '1px solid #ddd',
-                  borderRadius: 6,
-                  backgroundColor: '#f9f9f9',
-                }}
-              >
-                <div style={{ flex: 1, fontWeight: 600 }}>
-                  {tier.name} — <Text style={{ color: '#d1ac09ff' }}>${tier.price.toFixed(2)}</Text>
+              return (
+                <div
+                  key={tierId}
+                  style={{
+                    marginTop: 12,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 16,
+                    padding: '8px 12px',
+                    border: '1px solid #ddd',
+                    borderRadius: 6,
+                    backgroundColor: '#f9f9f9',
+                  }}
+                >
+                  <div style={{ flex: 1, fontWeight: 600 }}>
+                    {tier.name} — <Text style={{ color: '#d1ac09ff' }}>${tier.price.toFixed(2)}</Text>
+                  </div>
+                  <div style={{ minWidth: 180, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Text>Quantity:</Text>
+                    <InputNumber
+                      min={0}
+                      max={tier.capacity}
+                      value={currentQty}
+                      onChange={value => {
+                        if (value > tier.capacity) {
+                          message.warning(`Max seats for ${tier.name} is ${tier.capacity}`);
+                          return;
+                        }
+                        handleQuantityChange(tierId, value);
+                      }}
+                      disabled={!selectedTierIds.includes(tierId)}
+                      style={{ width: 90 }}
+                    />
+                    <Tooltip title={`Max seats available: ${tier.capacity}`}>
+                      <Text type="secondary" style={{ fontSize: 12 }}>
+                        / {tier.capacity} available
+                      </Text>
+                    </Tooltip>
+                  </div>
                 </div>
-                <div style={{ minWidth: 180, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Text>Quantity:</Text>
-                  <InputNumber
-                    min={0}
-                    max={tier.capacity}
-                    value={currentQty}
-                    onChange={value => {
-                      if (value > tier.capacity) {
-                        message.warning(`Max seats for ${tier.name} is ${tier.capacity}`);
-                        return;
-                      }
-                      handleQuantityChange(tierId, value);
-                    }}
-                    disabled={!selectedTierIds.includes(tierId)}
-                    style={{ width: 90 }}
-                  />
-                  <Tooltip title={`Max seats available: ${tier.capacity}`}>
-                    <Text type="secondary" style={{ fontSize: 12 }}>
-                      / {tier.capacity} available
-                    </Text>
-                  </Tooltip>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        
-          <div>
-            {selectedTierIds.length > 0 && (
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <div style={{ fontSize: 24, fontWeight: 'bold' }}>
-                  Total:{' '}
-                  <Text style={{ color: '#d1ac09ff' }}>${totalPrice.toFixed(2)}</Text>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              {selectedTierIds.length > 0 && (
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  <div style={{ fontSize: 24, fontWeight: 'bold' }}>
+                    Total:{' '}
+                    <Text style={{ color: '#d1ac09ff' }}>${totalPrice.toFixed(2)}</Text>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
             </div>
-          <Button
+            <Button
               type="primary"
               size="large"
               disabled={
@@ -513,66 +522,67 @@ const EventDetails = () => {
             >
               {checkoutLoading ? 'Processing...' : 'Buy Ticket'}
             </Button>
-              <FraudAlertModal
-                visible={isFraudModalVisible}
-                onClose={() => setIsFraudModalVisible(false)}
-              />
-        </div>
+            <FraudAlertModal
+              visible={isFraudModalVisible}
+              onClose={() => setIsFraudModalVisible(false)}
+            />
+          </div>
 
-        <ConfirmModal
-          visible={showConfirm}
-          onConfirm={handleDeleteConfirm}
-          onCancel={() => setShowConfirm(false)}
-          title="Are you sure you want to delete this event?"
-        />
-      </div>
-    )}
-  {authUser?.user?.role ==="organizer" &&(
-    <div>
-   <Title level={2}>Ticket Pricing Overview</Title>
-    {event.availableDates?.length > 0 && (
-          <div style={{ marginBottom: 16 }}>
-            <Text strong>Available Dates:</Text>
-            <ul>
-              {event.availableDates.map((date, idx) => (
-                <li key={idx}>
-                  {date.dayjsDate.format('YYYY-MM-DD')} — {date.location}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      {event.pricingTiers.map(tier => (
-        <div
-          key={tier.id}
-          style={{
-            padding: '12px 16px',
-            border: '1px solid #ddd',
-            borderRadius: 6,
-            backgroundColor: '#fafafa',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <div>
-            <strong>{tier.name}</strong>
-            <br />
-            <Text style={{ color: '#766209ff' }}>${tier.price.toFixed(2)}</Text>
-          </div>
-        <div>
-            {tier.capacity === 0 ? (
-              <Text type="danger">Sold out</Text>
-            ) : (
-              <Text type="secondary">{tier.capacity} seats available</Text>
-            )}
-          </div>
-          </div>
-           ))}
+          
         </div>
-    </div>
-  )}
+      )}
+          <ConfirmModal
+            visible={showConfirm}
+            onConfirm={handleDeleteConfirm}
+            onCancel={() => setShowConfirm(false)}
+            title="Are you sure you want to delete this event?"
+          />
+      {authUser?.user?.role === "organizer" && (
+        <div>
+          <Title level={2}>Ticket Pricing Overview</Title>
+          {availableDates?.length > 0 && (
+            <div style={{ marginBottom: 16 }}>
+              <Text strong>Available Dates:</Text>
+              <ul>
+                {availableDates.map((date, idx) => (
+                  <li key={idx}>
+                    {date.dayjsDate.format('YYYY-MM-DD')} — {date.location}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {event.pricingTiers.map(tier => (
+              <div
+                key={tier.id}
+                style={{
+                  padding: '12px 16px',
+                  border: '1px solid #ddd',
+                  borderRadius: 6,
+                  backgroundColor: '#fafafa',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <div>
+                  <strong>{tier.name}</strong>
+                  <br />
+                  <Text style={{ color: '#766209ff' }}>${tier.price.toFixed(2)}</Text>
+                </div>
+                <div>
+                  {tier.capacity === 0 ? (
+                    <Text type="danger">Sold out</Text>
+                  ) : (
+                    <Text type="secondary">{tier.capacity} seats available</Text>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

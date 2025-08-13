@@ -13,7 +13,7 @@ import {
   message,
   Image
 } from 'antd';
-import { MinusCircleOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
+import { LeftOutlined, MinusCircleOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import '../pages/Profile/Profile.css';
 import { Layout } from 'antd';
@@ -246,15 +246,25 @@ function EditEvent() {
     <div>
       <Header />
       <Layout style={{ minHeight: '100vh', background: 'white' }}>
+         <Button 
+                type="default" 
+                onClick={() => navigate(-1)}  
+                style={{ marginRight: 'auto',marginLeft:'100px',marginTop:'50px' }}
+                className="back-bttn"
+                icon={<LeftOutlined />} 
+              >
+                Back
+              </Button>
         <Layout.Content style={{ display:'flex',justifyContent:'center' }}>
           <div style={{ maxWidth: '700px' }}>
             <div style={{ 
               display: 'flex', 
               justifyContent: 'space-between', 
               alignItems: 'center', 
-              marginTop: '50px', 
+              marginTop: '0px', 
               marginBottom: '10px' 
             }}>
+            
               <h2 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>Edit Event</h2>
             </div>
 

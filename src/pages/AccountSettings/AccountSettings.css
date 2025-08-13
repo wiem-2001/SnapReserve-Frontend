@@ -1,0 +1,209 @@
+.settings-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.settings-card {
+  margin-bottom: 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.danger-zone-card {
+  border: 1px solid #ff4d4f;
+  margin-bottom: 24px;
+  border-radius: 8px;
+}
+
+.account-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.account-detail {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-label {
+  font-weight: 500;
+  min-width: 120px;
+  color: #666;
+}
+
+.detail-value {
+  flex: 1;
+}
+
+.verification-tag {
+  margin-left: 8px;
+}
+
+.security-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  gap: 12px;
+}
+
+.security-icon {
+  font-size: 18px;
+}
+
+.security-icon.verified {
+  color: #52c41a;
+}
+
+.security-icon.unverified {
+  color: #faad14;
+}
+
+.security-icon.warning {
+  color: #ff4d4f;
+}
+
+.security-icon.neutral {
+  color: #1890ff;
+}
+
+.security-date {
+  color: #666;
+  margin-left: auto;
+}
+
+.connected-account {
+  padding: 12px 0;
+}
+
+.account-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.account-icon {
+  font-size: 20px;
+}
+
+.account-icon.google {
+  color: #DB4437;
+}
+
+.account-icon.facebook {
+  color: #4267B2;
+}
+
+.account-description {
+  color: #666;
+  font-size: 13px;
+  margin-left: 32px;
+  margin-top: 4px;
+}
+
+
+.danger-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.danger-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.danger-icon {
+  color: #ff4d4f;
+  font-size: 20px;
+  margin-top: 4px;
+}
+
+.danger-title {
+  font-weight: 500;
+}
+
+.danger-description {
+  color: #666;
+  font-size: 13px;
+}
+
+.danger-divider {
+  margin: 12px 0;
+}
+
+
+.ip-tag, .device-tag {
+  margin-left: 8px;
+  font-size: 11px;
+}
+
+.view-all-activity {
+  text-align: center;
+  margin-top: 12px;
+}
+
+
+.subscription-tier {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.subscription-icon {
+  color: #faad14;
+  font-size: 20px;
+}
+
+.subscription-name {
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.subscription-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.subscription-detail {
+  display: flex;
+  gap: 8px;
+}
+
+.detail-label {
+  font-weight: 500;
+  min-width: 120px;
+  color: #666;
+}
+
+.subscription-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+
+@media (max-width: 768px) {
+  .account-detail, 
+  .security-item,
+  .account-info {
+    flex-wrap: wrap;
+  }
+  
+  .danger-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .subscription-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+}

@@ -140,7 +140,7 @@ const LoginPage = () => {
           </p>
           <div className="features">
             <p> Instant ticket delivery</p>
-            <p> Easy refunds & exchanges</p>
+            <p> Personalized event recommendations</p>
             <p> Real-time event updates</p>
           </div>
         </div>

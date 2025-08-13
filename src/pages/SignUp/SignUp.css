@@ -17,8 +17,8 @@
 
 .signup-container {
   display: flex;
-  width: 1000px; 
-  height: 1300px; 
+  width: 1100px; 
+  height: 1700px; 
   background: white;
   border-radius: 15px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -30,7 +30,6 @@
   padding: 60px; 
   display: flex;
   flex-direction: column;
-  justify-content: center;
 }
 
 .signup-right {
@@ -104,8 +103,8 @@ input:focus {
 }
 
 .signup-button {
-  background-color: #021529;
-  color: #e0ca03e2;
+  background-color: #021529 !important;
+  color: #ffd72d !important;
   padding: 16px;
   border: none;
   border-radius: 8px;
@@ -117,7 +116,7 @@ input:focus {
 }
 
 .signup-button:hover {
-  background-color: #06386e;
+  background-color: #06386e !important;
 }
 
 .divider {
@@ -243,4 +242,30 @@ input:focus {
   color: red;
   margin: 0.5rem 0 1rem 0;
   font-weight: 400;
+}
+.signup-form .form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px; 
+  font-size: 16px;
+  background-color: #fff;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.signup-form .form-group select:focus {
+  border-color: #0d0d0d;
+  box-shadow: 0 0 5px rgba(10, 10, 10, 0.5);
+}
+.login-right {
+  flex: 1;
+  background-color: #021529;
+  color: white;
+  padding: 80px;
+  padding-top: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  position: relative;
 }

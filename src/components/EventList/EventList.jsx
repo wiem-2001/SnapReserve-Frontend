@@ -39,8 +39,10 @@ const defaultCategories = [
 const EventList = () => {
   const [filters, setFilters] = useState({});
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const { events, fetchEvents, fetchOrganizerEvents , recommendations,fetchRecommendations} = useEventStore();
+  const { events, fetchEvents, fetchOrganizerEvents , recommendations,fetchRecommendations,total} = useEventStore();
   const { user: authUser, getMe } = useAuthStore();
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
 
 useEffect(() => {
   const loadUser = async () => {
@@ -54,12 +56,17 @@ useEffect(() => {
 }, [getMe]);
 
 useEffect(() => {
+  const paginationFilters = { ...filters, page, limit };
   if (authUser?.user?.role === 'organizer') {
-    fetchOrganizerEvents(filters);
+    fetchOrganizerEvents(paginationFilters);
   } else {
-    fetchEvents(filters);
+    fetchEvents(paginationFilters);
   }
-}, [filters, authUser?.user?.role, fetchEvents, fetchOrganizerEvents]);
+}, [filters, page, limit, authUser?.user?.role, fetchEvents, fetchOrganizerEvents]);
+
+const onPageChange = (newPage) => {
+  setPage(newPage);
+};
 
 useEffect(() => {
   if (authUser?.user?.role === 'attendee') {
@@ -115,10 +122,10 @@ useEffect(() => {
 
     <div className="event-list-container">
       {authUser?.user?.role === 'attendee' && (
-       <di>
+       <div>
           <RecommendedEvents events={recommendations} />
           <h2 style={{marginBottom:'50px'}}>Upcomming Events</h2>
-       </di>
+       </div>
       )}
 
  
@@ -158,7 +165,7 @@ useEffect(() => {
         </div>
       ) : (
         <div className="event-grid">
-          {events.map((event) => (
+          {events.data.map((event) => (
             <ul key={event.id}>
               <EventCard event={event} />
             </ul>
@@ -167,11 +174,14 @@ useEffect(() => {
       )}
 
       <div className="pagination-container">
-        <Pagination
-          total={50}
-          className="custom-pagination"
+       <Pagination
+          current={page}
+          pageSize={limit}
+          total={total}  
+          onChange={onPageChange}
           showSizeChanger={false}
         />
+
       </div>
     </div>
   );

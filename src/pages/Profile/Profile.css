@@ -29,3 +29,14 @@
   border: 1px solid #021529 !important;
   box-shadow: none !important;
 }
+
+  .back-bttn{
+  background-color: #021529;
+  border-color: #021529;
+  color: #ffd72d;
+  }
+    .back-bttn:hover{
+  background-color: #06386e !important;
+  border-color: #06386e !important;
+  color: #ffd72d !important;
+  }

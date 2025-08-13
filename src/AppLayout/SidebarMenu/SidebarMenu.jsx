@@ -10,7 +10,8 @@ import {
   CalendarOutlined,
   PlusOutlined,
   ToolOutlined,
-  ContainerOutlined 
+  ContainerOutlined, 
+  HeartOutlined
 } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
 import './SidebarMenu.css';
@@ -33,7 +34,7 @@ function SidebarMenu() {
     const routes = {
       '1': '/profile',
       '2': '/purchased-tickets',
-      '3': '/preferences',
+      '3': '/favorites',
       '5': '/payment-info',
       '6': '/notifications',
       '7': '/account-settings',
@@ -67,7 +68,7 @@ useEffect(() => {
   const attendeePathToKey = {
     '/profile': '1',
     '/purchased-tickets': '2',
-    '/preferences': '3',
+    '/favorites': '3',
     '/payment-info': '5',
     '/notifications': '6',
     '/account-settings': '7',
@@ -122,8 +123,8 @@ useEffect(() => {
     },
     {
       key: '3',
-      icon: <SlidersOutlined className="sidebar-icon" style={{ color: selectedKey === '3' ? '#FF4081' : '#021529' }} />,
-      label: <span className="sidebar-label">Preferences</span>,
+      icon: <HeartOutlined className="sidebar-icon" style={{ color: selectedKey === '3' ? '#FF4081' : '#021529' }} />,
+      label: <span className="sidebar-label">Favorites</span>,
     },
     {
       key: '5',
