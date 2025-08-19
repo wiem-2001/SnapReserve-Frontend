@@ -4,9 +4,11 @@ import SidebarMenu from '../../AppLayout/SidebarMenu/SidebarMenu';
 import { Button, Result, Spin } from 'antd';
 import '../Notifications/Notifications.css';
 import useNotif from '../../stores/notificationStore';
-
+import { useNavigate } from 'react-router-dom';
+import { format } from 'date-fns';
 
 function Notifications() {
+  const navigate = useNavigate();
   const { notifications, loading, fetchNotifications } = useNotif();
   useEffect(() => {
     fetchNotifications(); 
@@ -45,7 +47,7 @@ function Notifications() {
                   title="No Notifications Yet"
                   subTitle="You're all caught up! When something important happens, you'll see it here."
                   extra={
-                    <Button className='explore-event-btn' onClick={() => navigate('/events')}>
+                    <Button className='explore-event-btn' onClick={() => navigate('/')}>
                       Explore Events
                     </Button>
                   }
@@ -67,7 +69,7 @@ function Notifications() {
                 >
                   <strong>{notif.message}</strong>
                   <br />
-                  <small>{new Date(notif.timestamp).toLocaleString()}</small>
+                  <small>{format(new Date(notif.createdAt), 'yyyy-MM-dd HH:mm')}</small>
                 </li>
               ))}
             </ul>

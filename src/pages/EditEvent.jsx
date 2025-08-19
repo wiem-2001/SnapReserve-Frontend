@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Form,
   Input,
@@ -7,66 +7,87 @@ import {
   DatePicker,
   Space,
   Typography,
-  Divider,
   Upload,
-  Spin,
   message,
-  Image
+  Steps,
+  Card,
+  Row,
+  Col,
+  Collapse,
+  Spin
 } from 'antd';
-import { LeftOutlined, MinusCircleOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
+import { MinusCircleOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import moment from 'moment';
-import '../pages/Profile/Profile.css';
-import { Layout } from 'antd';
-import useEventStore from '../stores/eventStore';
-import { useParams, useNavigate } from 'react-router-dom';
+import './CreateEvent/CreateEvent.css';
 import Header from '../AppLayout/Header/Header';
 import SidebarMenu from '../AppLayout/SidebarMenu/SidebarMenu';
 import AppFooter from '../AppLayout/Footer';
+import { Layout } from 'antd';
+import useEventStore from '../stores/eventStore';
+import { useNavigate, useParams } from 'react-router-dom';
+import { RefundType } from '../constants/enums.js'
 
 const { TextArea } = Input;
 const { Option } = Select;
+const { Step } = Steps;
+const { Panel } = Collapse;
 
 const defaultCategories = [
-  'Festival',
-  'Concert',
-  'Movie',
-  'Conference',
-  'Workshop',
-  'Theater',
-  'Exhibition',
-  'Webinar',
-  'Meetup',
-  'Sport',
+  'Festival', 'Concert', 'Movie', 'Conference', 'Workshop',
+  'Theater', 'Exhibition', 'Webinar', 'Meetup', 'Sport',
+];
+
+const refundOptions = [
+  { label: 'Full Refund', value: RefundType.FULL_REFUND, description: 'Full refund before a specified date.' },
+  { label: 'No Refund', value: RefundType.NO_REFUND, description: 'Cannot be refunded.' },
+  { label: 'Partial Refund', value: RefundType.PARTIAL_REFUND, description: 'Partial refund before a specified date.' }
 ];
 
 function EditEvent() {
   const { id } = useParams();
+  const { event, fetchEvent, updateEvent, loading: eventLoading } = useEventStore();
   const navigate = useNavigate();
-  const { event, fetchEvent, updateEvent } = useEventStore();
+  const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
     title: '',
     category: '',
     description: '',
     image: null,
-    dates: [{ date: '', location: '' }],
-    pricingTiers: [{ name: '', price: '', capacity: '' }]
+    dates: [{
+      date: '', 
+      location: '', 
+      pricingTiers: [{ 
+        name: '', 
+        price: '', 
+        capacity: '',
+        refundType: RefundType.NO_REFUND 
+      }]
+    }]
   });
-  const [loading, setLoading] = useState(true);
+  const [originalImage, setOriginalImage] = useState(null);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const steps = [
+    { title: 'Basic Info', content: 'basic' },
+    { title: 'Dates & Tickets', content: 'dates' },
+    { title: 'Review & Submit', content: 'review' },
+  ];
+
   useEffect(() => {
-    const loadEventData = async () => {
+    const loadEvent = async () => {
       try {
         await fetchEvent(id);
-        setLoading(false);
-      } catch (error) {
-        message.error('Failed to load event data');
-        navigate('/getall-events');
+      } catch (err) {
+        message.error(err.response?.data?.message || 'Failed to load event');
+        navigate('/manage-events');
       }
     };
-    loadEventData();
-  }, [id]);
+
+    if (id) {
+      loadEvent();
+    }
+  }, [id, fetchEvent, navigate]);
 
   useEffect(() => {
     if (event) {
@@ -74,127 +95,193 @@ function EditEvent() {
         title: event.title,
         category: event.category,
         description: event.description,
-        image: event.image ? { 
-          uid: '-1', 
-          name: event.image.split('/').pop(), 
-          status: 'done',
-          url: `${import.meta.env.VITE_API_URL}${event.image}`
-        } : null,
-        dates: event.dates?.map(d => ({
-          date: moment(d.date),
-          location: d.location
-        })) || [{ date: null, location: '' }],
-        pricingTiers: event.pricingTiers?.map(p => ({
-          name: p.name,
-          price: p.price.toString(),
-          capacity: p.capacity.toString()
-        })) || [{ name: '', price: '', capacity: '' }]
+        image: null, 
+        dates: event.dates.map(date => ({
+          id: date.id,
+          date: date.date,
+          location: date.location,
+          pricingTiers: date.pricingTiers.map(tier => ({
+            id: tier.id,
+            name: tier.name,
+            price: tier.price,
+            capacity: tier.capacity,
+            refundType: tier.refundType,
+            refundDays: tier.refundDays,
+            refundPercentage: tier.refundPercentage
+          }))
+        }))
       });
+      setOriginalImage(event.image);
     }
   }, [event]);
+
+  const validateField = (name, value) => {
+    const newErrors = { ...errors };
+    switch (name) {
+      case 'title':
+        newErrors.title = value.trim() ? '' : 'Title is required';
+        break;
+      case 'category':
+        newErrors.category = value ? '' : 'Category is required';
+        break;
+      case 'description':
+        newErrors.description = value.trim() ? '' : 'Description is required';
+        break;
+      default:
+        break;
+    }
+    setErrors(newErrors);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    validateField(name, value);
   };
 
-  const handleDateChange = (index, key, value) => {
+  const handleDateChange = (dateIndex, key, value) => {
     const newDates = [...formData.dates];
-    newDates[index][key] = value;
+    newDates[dateIndex][key] = value;
     setFormData(prev => ({ ...prev, dates: newDates }));
+    
+    validateDates(newDates);
   };
 
-  const handlePricingChange = (index, key, value) => {
-    const newPricing = [...formData.pricingTiers];
-    newPricing[index][key] = value;
-    setFormData(prev => ({ ...prev, pricingTiers: newPricing }));
+  const handlePricingChange = (dateIndex, tierIndex, key, value) => {
+    const newDates = [...formData.dates];
+    newDates[dateIndex].pricingTiers[tierIndex][key] = value;
+    setFormData(prev => ({ ...prev, dates: newDates }));
+    
+    validateDates(newDates);
   };
 
-  const addDateLocation = () => {
-    setFormData(prev => ({ ...prev, dates: [...prev.dates, { date: null, location: '' }] }));
+  const addDate = () => {
+    setFormData(prev => ({
+      ...prev,
+      dates: [
+        ...prev.dates,
+        {
+          date: '',
+          location: '',
+          pricingTiers: [{
+            name: '',
+            price: '',
+            capacity: '',
+            refundType: ''
+          }]
+        }
+      ]
+    }));
   };
 
-  const removeDateLocation = (index) => {
+  const removeDate = (index) => {
     const newDates = formData.dates.filter((_, i) => i !== index);
     setFormData(prev => ({ ...prev, dates: newDates }));
+    validateDates(newDates);
   };
 
-  const addPricingTier = () => {
-    setFormData(prev => ({ ...prev, pricingTiers: [...prev.pricingTiers, { name: '', price: '', capacity: '' }] }));
+  const addPricingTier = (dateIndex) => {
+    const newDates = [...formData.dates];
+    newDates[dateIndex].pricingTiers.push({
+      name: '',
+      price: '',
+      capacity: '',
+      refundType: ''
+    });
+    setFormData(prev => ({ ...prev, dates: newDates }));
+    validateDates(newDates);
   };
 
-  const removePricingTier = (index) => {
-    const newPricing = formData.pricingTiers.filter((_, i) => i !== index);
-    setFormData(prev => ({ ...prev, pricingTiers: newPricing }));
+  const removePricingTier = (dateIndex, tierIndex) => {
+    const newDates = [...formData.dates];
+    newDates[dateIndex].pricingTiers = newDates[dateIndex].pricingTiers.filter((_, i) => i !== tierIndex);
+    setFormData(prev => ({ ...prev, dates: newDates }));
+    validateDates(newDates);
   };
+
+  const validateDates = (dates) => {
+  const newErrors = { ...errors };
+  
+  if (dates.length === 0) {
+    newErrors.dates = 'At least one date required';
+  } else {
+    const hasInvalidDates = dates.some(date => 
+      !date.date || !date.location.trim()
+    );
+    
+    const hasInvalidTiers = dates.some(date => 
+      date.pricingTiers.length === 0 || 
+      date.pricingTiers.some(tier => {
+        const baseInvalid = !tier.name.trim() || 
+                          tier.price === '' || 
+                          tier.price < 0 || 
+                          !tier.capacity || 
+                          tier.capacity <= 0 || 
+                          !tier.refundType;
+        
+        const refundInvalid = 
+          (tier.refundType === RefundType.FULL_REFUND && !tier.refundDays) ||
+          (tier.refundType === RefundType.PARTIAL_REFUND && 
+           (!tier.refundDays || !tier.refundPercentage));
+        
+        return baseInvalid || refundInvalid;
+      })
+    );
+    
+    newErrors.dates = hasInvalidDates ? 'Fill all the required fields correctly' : 
+                     hasInvalidTiers ? 'Fill all the required fields correctly' : '';
+  }
+  
+  setErrors(newErrors);
+};
 
   const handleImageChange = (info) => {
-    const fileList = info.fileList.slice(-1); 
+    const fileList = info.fileList;
     const newErrors = { ...errors };
 
     if (fileList.length === 0) {
       setFormData(prev => ({ ...prev, image: null }));
-      newErrors.image = '';
+      newErrors.image = 'Image is required';
     } else {
-      const file = fileList[0];
-      
-      if (!file.type?.startsWith('image/')) {
-        message.error('You can only upload image files!');
-        return;
-      }
-      if (file.size > 5 * 1024 * 1024) {
-        message.error('Image must be smaller than 5MB!');
-        return;
-      }
-
-      setFormData(prev => ({ 
-        ...prev, 
-        image: {
-          uid: file.uid,
-          name: file.name,
-          status: 'done',
-          url: URL.createObjectURL(file.originFileObj),
-          originFileObj: file.originFileObj
-        }
-      }));
+      const latestFile = fileList[fileList.length - 1];
+      setFormData(prev => ({ ...prev, image: latestFile.originFileObj || null }));
       newErrors.image = '';
     }
     
     setErrors(newErrors);
   };
 
-  const validateForm = () => {
+  const validateStep = (step) => {
     const newErrors = {};
     
-    if (!formData.title.trim()) newErrors.title = 'Title is required';
-    if (!formData.category) newErrors.category = 'Category is required';
-    if (!formData.description.trim()) newErrors.description = 'Description is required';
-
-    if (!formData.dates.length) {
-      newErrors.dates = 'At least one date/location required';
-    } else {
-      formData.dates.forEach(({ date, location }, i) => {
-        if (!date) newErrors.dates = `Date is required at row ${i + 1}`;
-        if (!location.trim()) newErrors.dates = `Location is required at row ${i + 1}`;
-      });
-    }
-
-    if (!formData.pricingTiers.length) {
-      newErrors.pricingTiers = 'At least one pricing tier required';
-    } else {
-      formData.pricingTiers.forEach(({ name, price, capacity }, i) => {
-        if (!name.trim()) newErrors.pricingTiers = `Pricing tier name is required at row ${i + 1}`;
-        if (price === '' || isNaN(price) || price < 0) newErrors.pricingTiers = `Valid price is required at row ${i + 1}`;
-        if (!capacity || isNaN(capacity) || capacity <= 0) newErrors.pricingTiers = `Valid capacity > 0 required at row ${i + 1}`;
-      });
+    if (step === 0) {
+      if (!formData.title.trim()) newErrors.title = 'Title is required';
+      if (!formData.category) newErrors.category = 'Category is required';
+      if (!formData.description.trim()) newErrors.description = 'Description is required';
+      if (!formData.image && !originalImage) newErrors.image = 'Image is required';
+    } else if (step === 1) {
+      validateDates(formData.dates);
+      if (errors.dates) newErrors.dates = errors.dates;
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).filter(k => newErrors[k]).length === 0;
   };
 
- const handleSubmit = async () => {
-  if (!validateForm()) {
+  const next = () => {
+    if (validateStep(currentStep)) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      message.error('Please fill all required fields before proceeding');
+    }
+  };
+
+  const prev = () => {
+    setCurrentStep(currentStep - 1);
+  };
+
+const handleSubmit = async () => {
+  if (!validateStep(currentStep)) {
     message.error('Please fix all errors before submitting');
     return;
   }
@@ -205,239 +292,430 @@ function EditEvent() {
     submissionData.append('title', formData.title);
     submissionData.append('category', formData.category);
     submissionData.append('description', formData.description);
-    if (formData.image?.originFileObj) {
-      submissionData.append('image', formData.image.originFileObj);
-    } else if (formData.image?.url) {
-      const imagePath = formData.image.url.replace(`${import.meta.env.VITE_API_URL}`, '');
-      submissionData.append('image', imagePath);
+    
+    // Only append image if it's a new one
+    if (formData.image) {
+      submissionData.append('image', formData.image);
+    } else if (originalImage) {
+      submissionData.append('image', originalImage);
     }
-    const formattedDates = formData.dates.map(dateObj => ({
-      date: moment(dateObj.date).toISOString(),
-      location: dateObj.location
-    }));
-    submissionData.append('dates', JSON.stringify(formattedDates));
-    const formattedPricingTiers = formData.pricingTiers.map(tier => ({
-      name: tier.name,
-      price: parseFloat(tier.price),
-      capacity: parseInt(tier.capacity, 10)
-    }));
-    submissionData.append('pricingTiers', JSON.stringify(formattedPricingTiers));
-
+    
+    submissionData.append('dates', JSON.stringify(formData.dates));
+    
+    // Ensure the ID is properly passed
     await updateEvent(id, submissionData);
     message.success('Event updated successfully!');
     navigate('/manage-events');
   } catch (err) {
     console.error('Update error:', err);
-    message.error(err.response?.data?.error || err.message || 'Failed to update event');
+    message.error(err.message || 'Failed to update event');
   } finally {
     setIsSubmitting(false);
   }
 };
+  const renderStepContent = () => {
+    if (eventLoading) {
+      return <Spin size="large" />;
+    }
 
-  if (loading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <Spin size="large" />
-      </div>
-    );
-  }
+    switch (currentStep) {
+      case 0:
+        return (
+          <Card title="Basic Information" style={{ marginBottom: 24 }}>
+            <Form.Item
+              label="Event Title"
+              validateStatus={errors.title ? 'error' : ''}
+              help={errors.title}
+              className="custom-input"
+            >
+              <Input
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                placeholder="Event Title"
+              />
+            </Form.Item>
+            <Form.Item 
+              label="Category" 
+              validateStatus={errors.category ? 'error' : ''} 
+              help={errors.category}
+              hasFeedback
+              className="custom-input"
+            >
+              <Select
+                name="category"
+                value={formData.category}
+                onChange={(value) => {
+                  setFormData(prev => ({ ...prev, category: value }));
+                  validateField('category', value);
+                }}
+                placeholder="Select Category"
+              >
+                {defaultCategories.map(cat => (
+                  <Option key={cat} value={cat}>{cat}</Option>
+                ))}
+              </Select>
+            </Form.Item>
+            <Form.Item
+              label="Description"
+              validateStatus={errors.description ? 'error' : ''}
+              help={errors.description}
+              className="custom-input"
+            >
+              <TextArea
+                name="description"
+                rows={4}
+                value={formData.description}
+                onChange={handleChange}
+                placeholder="Event Description"
+              />
+            </Form.Item>
+            <Form.Item 
+              label="Event Image" 
+              validateStatus={errors.image ? 'error' : ''} 
+              help={errors.image}
+              hasFeedback
+              className="custom-input"
+            >
+              <Upload
+                name="image"
+                beforeUpload={() => false}
+                accept="image/*"
+                showUploadList={true}
+                maxCount={1}
+                onChange={handleImageChange}
+                fileList={formData.image ? [{ 
+                  uid: '-1', 
+                  name: formData.image.name, 
+                  status: 'done', 
+                  originFileObj: formData.image 
+                }] : originalImage ? [{
+                  uid: '-2',
+                  name: 'current-image.jpg',
+                  status: 'done',
+                  url: `${import.meta.env.VITE_API_URL}${originalImage}`
+                }] : []}
+                onRemove={() => {
+                  setFormData(prev => ({ ...prev, image: null }));
+                  setOriginalImage(null);
+                  setErrors(prev => ({ ...prev, image: 'Image is required' }));
+                }}
+              >
+                <Button className="light-btn" icon={<UploadOutlined />}>Click to Upload</Button>
+              </Upload>
+              <Typography.Text type="secondary">
+                {originalImage ? 'Current image will be kept if no new image is uploaded' : 'Recommended size: 1200x630px'}
+              </Typography.Text>
+            </Form.Item>
+          </Card>
+        );
+      case 1:
+        return (
+          <Card title="Dates & Ticket Pricing" style={{ marginBottom: 24 }}>
+            {errors.dates && (
+              <div className="error-message" style={{ color: '#ff4d4f', marginBottom: 10 }}>
+                {errors.dates}
+              </div>
+            )}
+            
+            <Collapse accordion>
+              {formData.dates.map((dateObj, dateIndex) => (
+                <Panel 
+                  key={dateIndex} 
+                  header={`Date ${dateIndex + 1}`}
+                  extra={
+                    formData.dates.length > 1 && (
+                      <MinusCircleOutlined 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeDate(dateIndex);
+                        }} 
+                        style={{ color: '#ff4d4f' }} 
+                      />
+                    )
+                  }
+                >
+                  <Space direction="vertical" style={{ width: '100%' }}>
+                    <Row gutter={16}>
+                      <Col span={12}>
+                        <Form.Item label="Date & Time" required>
+                          <DatePicker
+                            showTime={{ format: 'HH:mm' }}
+                            value={dateObj.date ? moment(dateObj.date) : null}
+                            onChange={(date) => handleDateChange(dateIndex, 'date', date ? date.toISOString() : '')}
+                            style={{ width: '100%' }}
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        <Form.Item label="Location" required>
+                          <Input
+                            value={dateObj.location}
+                            onChange={e => handleDateChange(dateIndex, 'location', e.target.value)}
+                          />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                    
+                    <Typography.Title level={5} style={{ marginTop: 16 }}>Ticket Types</Typography.Title>
+                    
+                    {dateObj.pricingTiers.map((tier, tierIndex) => (
+                      <Card 
+                        key={tierIndex} 
+                        style={{ marginBottom: 16 }}
+                        title={`Ticket Type ${tierIndex + 1}`}
+                        extra={
+                          dateObj.pricingTiers.length > 1 && (
+                            <MinusCircleOutlined 
+                              onClick={() => removePricingTier(dateIndex, tierIndex)} 
+                              style={{ color: '#ff4d4f' }} 
+                            />
+                          )
+                        }
+                      >
+                        <Row gutter={16}>
+                          <Col span={8}>
+                            <Form.Item label="Name" required>
+                              <Input
+                                value={tier.name}
+                                onChange={e => handlePricingChange(dateIndex, tierIndex, 'name', e.target.value)}
+                              />
+                            </Form.Item>
+                          </Col>
+                          <Col span={8}>
+                            <Form.Item label="Price ($)" required>
+                              <Input
+                                type="number"
+                                value={tier.price}
+                                onChange={e => handlePricingChange(dateIndex, tierIndex, 'price', e.target.value)}
+                                min={0}
+                              />
+                            </Form.Item>
+                          </Col>
+                          <Col span={8}>
+                            <Form.Item label="Capacity" required>
+                              <Input
+                                type="number"
+                                value={tier.capacity}
+                                onChange={e => handlePricingChange(dateIndex, tierIndex, 'capacity', e.target.value)}
+                                min={1}
+                              />
+                            </Form.Item>
+                          </Col>
+                        </Row>
+                        
+                        <Form.Item label="Refund Policy" required>
+  <Select
+    value={tier.refundType}
+    onChange={value => handlePricingChange(dateIndex, tierIndex, 'refundType', value)}
+    style={{ width: '100%' }}
+  >
+    {refundOptions.map(option => (
+      <Option key={option.value} value={option.value}>  
+        {option.label}
+      </Option>
+    ))}
+  </Select>
+  {tier.refundType && (
+    <Typography.Text type="secondary">
+      {refundOptions.find(o => o.value === tier.refundType)?.description}
+    </Typography.Text>
+  )}
+                          </Form.Item>
+
+                          {tier.refundType === RefundType.FULL_REFUND && (
+                            <Form.Item label="Refundable Until">
+                              <Input
+                                type="number"
+                                placeholder="Days before event"
+                                value={tier.refundDays || ''}
+                                onChange={e => handlePricingChange(dateIndex, tierIndex, 'refundDays', e.target.value)}
+                                min={0}
+                                addonAfter="days before"
+                              />
+                            </Form.Item>
+                          )}
+
+                          {tier.refundType === RefundType.PARTIAL_REFUND && (
+                            <>
+                              <Form.Item label="Refundable Until">
+                                <Input
+                                  type="number"
+                                  placeholder="Days before event"
+                                  value={tier.refundDays || ''}
+                                  onChange={e => handlePricingChange(dateIndex, tierIndex, 'refundDays', e.target.value)}
+                                  min={0}
+                                  addonAfter="days before"
+                                />
+                              </Form.Item>
+                              <Form.Item label="Refund Percentage">
+                                <Input
+                                  type="number"
+                                  placeholder="Percentage"
+                                  value={tier.refundPercentage || ''}
+                                  onChange={e => handlePricingChange(dateIndex, tierIndex, 'refundPercentage', e.target.value)}
+                                  min={0}
+                                  max={100}
+                                  addonAfter="%"
+                                />
+                              </Form.Item>
+                            </>
+                          )}
+                        
+                        {tier.refundType === 'Full Refund' && (
+                          <Form.Item label="Refundable Until">
+                            <Input
+                              type="number"
+                              placeholder="Days before event"
+                              value={tier.refundDays || ''}
+                              onChange={e => handlePricingChange(dateIndex, tierIndex, 'refundDays', e.target.value)}
+                              min={0}
+                              addonAfter="days before"
+                            />
+                          </Form.Item>
+                        )}
+                        
+                        {tier.refundType === 'Partial Refund' && (
+                          <>
+                            <Form.Item label="Refundable Until">
+                              <Input
+                                type="number"
+                                placeholder="Days before event"
+                                value={tier.refundDays || ''}
+                                onChange={e => handlePricingChange(dateIndex, tierIndex, 'refundDays', e.target.value)}
+                                min={0}
+                                addonAfter="days before"
+                              />
+                            </Form.Item>
+                            <Form.Item label="Refund Percentage">
+                              <Input
+                                type="number"
+                                placeholder="Percentage"
+                                value={tier.refundPercentage || ''}
+                                onChange={e => handlePricingChange(dateIndex, tierIndex, 'refundPercentage', e.target.value)}
+                                min={0}
+                                max={100}
+                                addonAfter="%"
+                              />
+                            </Form.Item>
+                          </>
+                        )}
+                      </Card>
+                    ))}
+                    
+                    <Button 
+                      type="dashed" 
+                      onClick={() => addPricingTier(dateIndex)} 
+                      icon={<PlusOutlined />} 
+                      style={{ width: '100%' }}
+                    >
+                      Add Ticket Type
+                    </Button>
+                  </Space>
+                </Panel>
+              ))}
+            </Collapse>
+            
+            <Button 
+              type="dashed" 
+              onClick={addDate} 
+              icon={<PlusOutlined />} 
+              style={{ width: '100%', marginTop: 16 }}
+            >
+              Add Another Date
+            </Button>
+          </Card>
+        );
+      case 2:
+        return (
+          <Card title="Review Your Changes" style={{ marginBottom: 24 }}>
+            <div style={{ marginBottom: 24 }}>
+              <Typography.Title level={5}>Basic Information</Typography.Title>
+              <Typography.Paragraph><strong>Title:</strong> {formData.title}</Typography.Paragraph>
+              <Typography.Paragraph><strong>Category:</strong> {formData.category}</Typography.Paragraph>
+              <Typography.Paragraph><strong>Description:</strong> {formData.description}</Typography.Paragraph>
+              <Typography.Paragraph>
+                <strong>Image:</strong> {formData.image ? formData.image.name : originalImage ? 'Keeping current image' : 'No image selected'}
+              </Typography.Paragraph>
+            </div>
+            
+            <div style={{ marginBottom: 24 }}>
+              <Typography.Title level={5}>Dates & Ticket Pricing</Typography.Title>
+              {formData.dates.map((date, dateIndex) => (
+                <div key={dateIndex} style={{ marginBottom: 24 }}>
+                  <Typography.Title level={5}>
+                    Date {dateIndex + 1}: {moment(date.date).format('LLL')} at {date.location}
+                  </Typography.Title>
+                  
+                  {date.pricingTiers.map((tier, tierIndex) => (
+                    <div key={tierIndex} style={{ marginLeft: 16, marginBottom: 16 }}>
+                      <Typography.Paragraph>
+                        <strong>Ticket {tierIndex + 1}:</strong> {tier.name} - ${tier.price} (Capacity: {tier.capacity})
+                      </Typography.Paragraph>
+                      <Typography.Paragraph>
+                        <strong>Refund Policy:</strong> {refundOptions.find(o => o.value === tier.refundType)?.label}
+                        {tier.refundType === RefundType.FULL_REFUND && tier.refundDays && (
+                          <span> - Refundable until {tier.refundDays} days before event</span>
+                        )}
+                        {tier.refundType === RefundType.PARTIAL_REFUND && tier.refundDays && tier.refundPercentage && (
+                          <span> - {tier.refundPercentage}% refund until {tier.refundDays} days before event</span>
+                        )}
+                      </Typography.Paragraph>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </Card>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div>
       <Header />
       <Layout style={{ minHeight: '100vh', background: 'white' }}>
-         <Button 
-                type="default" 
-                onClick={() => navigate(-1)}  
-                style={{ marginRight: 'auto',marginLeft:'100px',marginTop:'50px' }}
-                className="back-bttn"
-                icon={<LeftOutlined />} 
-              >
-                Back
-              </Button>
-        <Layout.Content style={{ display:'flex',justifyContent:'center' }}>
-          <div style={{ maxWidth: '700px' }}>
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center', 
-              marginTop: '0px', 
-              marginBottom: '10px' 
-            }}>
-            
-              <h2 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>Edit Event</h2>
+        <SidebarMenu />
+        <Layout.Content style={{ padding: '0px 24px', background: '#fff' }}>
+          <div style={{ maxWidth: '800px', margin: '50px auto', padding: '0px' }}>
+            <div style={{ marginBottom: '40px' }}>
+              <Typography.Title level={2} style={{ marginBottom: 0 }}>Edit Event</Typography.Title>
+              <Typography.Text type="secondary">
+                Update the details below for your event
+              </Typography.Text>
             </div>
-
-            <Form layout="vertical" onFinish={handleSubmit} autoComplete="off">
-              <Form.Item label="Event Title" validateStatus={errors.title ? 'error' : ''} help={errors.title}>
-                <Input
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  placeholder="Event Title"
-                />
-              </Form.Item>
-
-              <Form.Item label="Category" validateStatus={errors.category ? 'error' : ''} help={errors.category}>
-                <Select
-                  name="category"
-                  value={formData.category}
-                  onChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
-                  placeholder="Select Category"
-                >
-                  {defaultCategories.map(cat => (
-                    <Option key={cat} value={cat}>{cat}</Option>
-                  ))}
-                </Select>
-              </Form.Item>
-
-              <Form.Item label="Description" validateStatus={errors.description ? 'error' : ''} help={errors.description}>
-                <TextArea
-                  name="description"
-                  rows={4}
-                  value={formData.description}
-                  onChange={handleChange}
-                  placeholder="Event Description"
-                />
-              </Form.Item>
-
-              <Form.Item label="Image" validateStatus={errors.image ? 'error' : ''} help={errors.image}>
-                <Upload
-                  name="image"
-                  beforeUpload={() => false}
-                  accept="image/*"
-                  showUploadList={{
-                    showPreviewIcon: true,
-                    showRemoveIcon: true,
-                    showDownloadIcon: false
-                  }}
-                  maxCount={1}
-                  onChange={handleImageChange}
-                  fileList={formData.image ? [{
-                    uid: formData.image.uid || '-1',
-                    name: formData.image.name || formData.image.url?.split('/').pop() || 'event-image',
-                    status: 'done',
-                    url: formData.image.url || formData.image,
-                    originFileObj: formData.image.originFileObj
-                  }] : []}
-                  onRemove={() => {
-                    setFormData(prev => ({ ...prev, image: null }));
-                    setErrors(prev => ({ ...prev, image: '' }));
-                  }}
-                >
-                  <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                </Upload>
-                <small>Leave empty to keep current image</small>
-               
-              </Form.Item>
-
-              <Divider />
-              <Typography.Title level={5}>Dates & Locations</Typography.Title>
-              {errors.dates && (
-                <div style={{ color: '#ff4d4f', marginBottom: 10 }}>
-                  {errors.dates}
-                </div>
-              )}
-
-              {formData.dates.map((dateObj, i) => (
-                <Space key={i} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
-                  <DatePicker
-                    showTime={{ format: 'HH:mm' }}
-                    value={dateObj.date}
-                    onChange={date => handleDateChange(i, 'date', date)}
-                    className="custom-datepicker"
-                  />
-                  <Input
-                    placeholder="Location"
-                    value={dateObj.location}
-                    onChange={e => handleDateChange(i, 'location', e.target.value)}
-                  />
-                  {formData.dates.length > 1 && (
-                    <MinusCircleOutlined 
-                      onClick={() => removeDateLocation(i)} 
-                      style={{ color: '#ff4d4f' }} 
-                    />
-                  )}
-                </Space>
+            
+            <Steps current={currentStep} style={{ marginBottom: 32 }}>
+              {steps.map(item => (
+                <Step key={item.title} title={item.title} />
               ))}
-              <Form.Item>
-                <Button 
-                  type="dashed" 
-                  onClick={addDateLocation} 
-                  icon={<PlusOutlined />} 
-                  style={{ width: '100%' }}
-                >
-                  Add Date & Location
+            </Steps>
+            
+            {renderStepContent()}
+            
+            <div style={{ marginTop: 24, display: 'flex', justifyContent: 'space-between' }}>
+              {currentStep > 0 && (
+                <Button style={{ margin: '0 8px' }} onClick={prev}>
+                  Previous
                 </Button>
-              </Form.Item>
-
-              <Divider />
-              <Typography.Title level={5}>Pricing Tiers</Typography.Title>
-              {errors.pricingTiers && (
-                <div style={{ color: '#ff4d4f', marginBottom: 10 }}>
-                  {errors.pricingTiers}
-                </div>
               )}
-
-              {formData.pricingTiers.map((priceObj, i) => (
-                <Space key={i} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
-                  <Input
-                    placeholder="Name (e.g. Adult)"
-                    value={priceObj.name}
-                    onChange={e => handlePricingChange(i, 'name', e.target.value)}
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Price ($)"
-                    value={priceObj.price}
-                    onChange={e => handlePricingChange(i, 'price', e.target.value)}
-                    min={0}
-                    step="0.01"
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Capacity"
-                    value={priceObj.capacity}
-                    onChange={e => handlePricingChange(i, 'capacity', e.target.value)}
-                    min={1}
-                  />
-                  {formData.pricingTiers.length > 1 && (
-                    <MinusCircleOutlined 
-                      onClick={() => removePricingTier(i)} 
-                      style={{ color: '#ff4d4f' }} 
-                    />
-                  )}
-                </Space>
-              ))}
-              <Form.Item>
-                <Button 
-                  type="dashed" 
-                  onClick={addPricingTier} 
-                  icon={<PlusOutlined />} 
-                  style={{ width: '100%' }}
-                >
-                  Add Pricing Tier
+              {currentStep < steps.length - 1 && (
+                <Button type="primary" onClick={next}>
+                  Next
                 </Button>
-              </Form.Item>
-
-              <Form.Item>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  style={{
-                    backgroundColor: '#021529',
-                    color: '#ffd72d',
-                    fontWeight: 'bold',
-                    borderRadius: '20px',
-                    width: '200px',
-                    margin: '15px 0px 0px 0px'
-                  }}
+              )}
+              {currentStep === steps.length - 1 && (
+                <Button 
+                  type="primary" 
+                  onClick={handleSubmit}
                   loading={isSubmitting}
                 >
                   Update Event
                 </Button>
-              </Form.Item>
-            </Form>
+              )}
+            </div>
           </div>
         </Layout.Content>
       </Layout>

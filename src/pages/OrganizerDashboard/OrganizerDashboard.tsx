@@ -210,7 +210,7 @@ const OrganizerDashboard = () => {
     <div className="dashboard-container">
       <h2 className="dashboard-header">
         <TrophyOutlined className="header-icon" />
-        Event Organizer Dashboard
+         Organizer Dashboard
       </h2>
 
       <Row gutter={16} className="stats-row">
@@ -393,7 +393,7 @@ const OrganizerDashboard = () => {
                       {stats.completionRate}%
                     </div>
                     <div className="completion-label">
-                      Completion Rate
+                      Participation Rate
                     </div>
                   </div>
                 )}

@@ -23,7 +23,7 @@ import useAuthStore from '../../stores/authStore';
 import useNotificationStore from '../../stores/notificationStore'; 
 import {jwtDecode} from 'jwt-decode';
 import './Header.css';
-
+import { format } from 'date-fns';
 const { Text } = Typography;
 
 const menuItems = [
@@ -83,7 +83,7 @@ function Header() {
       }}
     >
       <Menu.Item key="profile" icon={<UserOutlined style={{ color: '#021529' }} />}>
-        My Profile
+         My Account
       </Menu.Item>
 
       {userRole === 'attendee' && (
@@ -170,7 +170,16 @@ function Header() {
               onClick={() => handleNotificationClick(notif)}
             >
               <List.Item.Meta
-                description={<Text style={{color:'black'}}>{notif.message || notif.body}</Text>}
+                description={
+                  <div>
+                    <Text style={{ color: 'black', display: 'block' }}>
+                      {notif.message || notif.body}
+                    </Text>
+                    <small style={{ color: 'gray' }}>
+                      {format(new Date(notif.createdAt), 'yyyy-MM-dd HH:mm')}
+                    </small>
+                  </div>
+                }
               />
             </List.Item>
           )}
@@ -182,7 +191,6 @@ function Header() {
   return (
     <div className="header-container">
       <div className="header-inner">
-       
         {userRole !== 'organizer' ? ( <div className="logo-section" onClick={() => navigate('/')}>
           <img src={logo} alt="Logo" className="logo-image" />
           SnapReserve

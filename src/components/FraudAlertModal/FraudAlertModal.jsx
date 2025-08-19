@@ -22,7 +22,7 @@ const FraudAlertModal = ({ visible, onClose }) => {
         This transaction was blocked due to suspicious activity. Your account remains active, but this payment cannot be processed at this time.
       </Text>
        <Text  style={{ fontSize: '16px', fontWeight: 'bold' }}>
-        If you believe this was a mistake, please reach out once support is available during the next phase of development.
+        If you believe this was a mistake, please ignore this and try again.
       </Text>
        </div>
       

@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import {
   UserOutlined,
-  SlidersOutlined,
   HistoryOutlined,
-  CreditCardOutlined,
   BellOutlined,
   SettingOutlined,
   LineChartOutlined,
   CalendarOutlined,
   PlusOutlined,
   ToolOutlined,
-  ContainerOutlined, 
   HeartOutlined
 } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
@@ -35,14 +32,13 @@ function SidebarMenu() {
       '1': '/profile',
       '2': '/purchased-tickets',
       '3': '/favorites',
-      '5': '/payment-info',
-      '6': '/notifications',
-      '7': '/account-settings',
-      '8-1': '/manage-events',
-      '8-2': '/create-event',
-      '9': '/analytics',
-      '10-1': '/profile',
-      '10-2': '/account-settings',
+      '4': '/notifications',
+      '5': '/account-settings',
+      '6': '/manage-events',
+      '7': '/create-event',
+      '8': '/analytics',
+      '9': '/profile',
+      '10': '/account-settings',
     };
 
     navigate(routes[key] || '/profile');
@@ -50,44 +46,40 @@ function SidebarMenu() {
 
   const location = useLocation();
 
-useEffect(() => {
-  const token = Cookies.get('token');
-  let userRole = null;
+  useEffect(() => {
+    const token = Cookies.get('token');
+    let userRole = null;
 
-  if (token) {
-    try {
-      const decoded = jwtDecode(token);
-      userRole = decoded.role || decoded?.user?.role;
-      setRole(userRole);
-    } catch (err) {
-      console.error('Invalid token');
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        userRole = decoded.role || decoded?.user?.role;
+        setRole(userRole);
+      } catch (err) {
+        console.error('Invalid token');
+      }
     }
-  }
 
+    const attendeePathToKey = {
+      '/profile': '1',
+      '/purchased-tickets': '2',
+      '/favorites': '3',
+      '/notifications': '4',
+      '/account-settings': '5',
+    };
 
-  const attendeePathToKey = {
-    '/profile': '1',
-    '/purchased-tickets': '2',
-    '/favorites': '3',
-    '/payment-info': '5',
-    '/notifications': '6',
-    '/account-settings': '7',
-  };
+    const organizerPathToKey = {
+      '/manage-events': '6',
+      '/create-event': '7',
+      '/analytics': '8',
+      '/profile': '9',
+      '/account-settings': '10',
+    };
 
-  const organizerPathToKey = {
-    '/manage-events': '8-1',
-    '/create-event': '8-2',
-    '/analytics': '9',
-    '/profile': '10-1',
-    '/account-settings': '10-2',
-  };
-
-  const pathMap = userRole === 'organizer' ? organizerPathToKey : attendeePathToKey;
-  const currentKey = pathMap[location.pathname] || (userRole === 'organizer' ? '8-1' : '1');
-  setSelectedKey(currentKey);
-}, [location]);
-
-
+    const pathMap = userRole === 'organizer' ? organizerPathToKey : attendeePathToKey;
+    const currentKey = pathMap[location.pathname] || (userRole === 'organizer' ? '6' : '1');
+    setSelectedKey(currentKey);
+  }, [location]);
 
   const TicketIcon = ({ selected }) => (
     <svg
@@ -100,8 +92,7 @@ useEffect(() => {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      style={{ verticalAlign: 'middle' ,marginRight:'15px'}}
-
+      style={{ verticalAlign: 'middle', marginRight: '15px' }}
     >
       <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
       <path d="M13 5v2" />
@@ -127,50 +118,44 @@ useEffect(() => {
       label: <span className="sidebar-label">Favorites</span>,
     },
     {
-      key: '5',
-      icon: <CreditCardOutlined className="sidebar-icon" style={{ color: selectedKey === '5' ? '#FF4081' : '#021529' }} />,
-      label: <span className="sidebar-label">Payment Information</span>,
-    },
-    {
-      key: '6',
-      icon: <BellOutlined className="sidebar-icon" style={{ color: selectedKey === '6' ? '#FF4081' : '#021529' }} />,
+      key: '4',
+      icon: <BellOutlined className="sidebar-icon" style={{ color: selectedKey === '4' ? '#FF4081' : '#021529' }} />,
       label: <span className="sidebar-label">Notifications</span>,
     },
     {
-      key: '7',
-      icon: <SettingOutlined className="sidebar-icon" style={{ color: selectedKey === '7' ? '#FF4081' : '#021529' }} />,
+      key: '5',
+      icon: <SettingOutlined className="sidebar-icon" style={{ color: selectedKey === '5' ? '#FF4081' : '#021529' }} />,
       label: <span className="sidebar-label">Account Settings</span>,
     },
   ];
 
-const organizerItems = [
-  {
-    key: '8-1',
-    icon: <CalendarOutlined className="sidebar-icon" style={{ color: selectedKey === '8-1' ? '#FF4081' : '#021529' }} />,
-    label: <span className="sidebar-label">Upcoming Events</span>,
-  },
-  {
-    key: '8-2',
-    icon: <PlusOutlined className="sidebar-icon" style={{ color: selectedKey === '8-2' ? '#FF4081' : '#021529' }} />,
-    label: <span className="sidebar-label">Create Event</span>,
-  },
-  {
-    key: '9',
-    icon: <LineChartOutlined className="sidebar-icon" style={{ color: selectedKey === '9' ? '#FF4081' : '#021529' }} />,
-    label: <span className="sidebar-label">Analytics</span>,
-  },
-  {
-    key: '10-1',
-    icon: <UserOutlined className="sidebar-icon" style={{ color: selectedKey === '10-1' ? '#FF4081' : '#021529' }} />,
-    label: <span className="sidebar-label">Personal Info</span>,
-  },
-  {
-    key: '10-2',
-    icon: <ToolOutlined className="sidebar-icon" style={{ color: selectedKey === '10-2' ? '#FF4081' : '#021529' }} />,
-    label: <span className="sidebar-label">Account Settings</span>,
-  },
-];
-
+  const organizerItems = [
+    {
+      key: '6',
+      icon: <CalendarOutlined className="sidebar-icon" style={{ color: selectedKey === '6' ? '#FF4081' : '#021529' }} />,
+      label: <span className="sidebar-label">Upcoming Events</span>,
+    },
+    {
+      key: '7',
+      icon: <PlusOutlined className="sidebar-icon" style={{ color: selectedKey === '7' ? '#FF4081' : '#021529' }} />,
+      label: <span className="sidebar-label">Create Event</span>,
+    },
+    {
+      key: '8',
+      icon: <LineChartOutlined className="sidebar-icon" style={{ color: selectedKey === '8' ? '#FF4081' : '#021529' }} />,
+      label: <span className="sidebar-label">Analytics</span>,
+    },
+    {
+      key: '9',
+      icon: <UserOutlined className="sidebar-icon" style={{ color: selectedKey === '9' ? '#FF4081' : '#021529' }} />,
+      label: <span className="sidebar-label">Personal Info</span>,
+    },
+    {
+      key: '10',
+      icon: <SettingOutlined className="sidebar-icon" style={{ color: selectedKey === '10' ? '#FF4081' : '#021529' }} />,
+      label: <span className="sidebar-label">Account Settings</span>,
+    },
+  ];
 
   return (
     <div
@@ -187,12 +172,11 @@ const organizerItems = [
         trigger={null}
         collapsible
         collapsed={collapsed}
-        style={{ backgroundColor: 'white',marginTop:'2px' }}
+        style={{ backgroundColor: 'white', marginTop: '2px' }}
       >
         <Menu
           mode="inline"
           selectedKeys={[selectedKey]}
-          
           className="sidebar-menu"
           style={{ backgroundColor: 'white', width: 250 }}
           items={role === 'organizer' ? organizerItems : attendeeItems}

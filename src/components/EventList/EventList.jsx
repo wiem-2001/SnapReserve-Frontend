@@ -159,19 +159,21 @@ useEffect(() => {
         <Button onClick={clearAllFilters}>Clear All Filters</Button>
       </div>
       
-      {events.length === 0 ? (
-        <div style={{ padding: '2rem', textAlign: 'center', color: '#999' }}>
-          No events found for the selected filters.
-        </div>
-      ) : (
-        <div className="event-grid">
-          {events.data.map((event) => (
-            <ul key={event.id}>
-              <EventCard event={event} />
-            </ul>
-          ))}
-        </div>
-      )}
+          {Array.isArray(events) && events.length === 0 ? (
+          <div style={{ padding: '2rem', textAlign: 'center', color: '#999' }}>
+            No events found.
+          </div>
+        ) : (
+          <div className="event-grid">
+            {Array.isArray(events) &&
+              events.map((event) => (
+                <ul key={event.id}>
+                  <EventCard event={event} />
+                </ul>
+              ))}
+          </div>
+        )}
+
 
       <div className="pagination-container">
        <Pagination

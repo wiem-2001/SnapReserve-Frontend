@@ -257,5 +257,6 @@
 }
 
 .menu-dropdown button:hover {
-  background-color: #f0f0f0;
+  background-color: #e2e1e1;
+  color: black;
 }

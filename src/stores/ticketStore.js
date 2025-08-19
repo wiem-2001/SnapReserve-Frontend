@@ -100,6 +100,23 @@ fetchTickets: async (userId) => {
     });
   },
 
+  requestRefund: async (ticketId) => {
+    set({ loading: true, error: null });
+    try {
+      const { data } = await axios.post(
+        `${API_BASE}/tickets/refund/${ticketId}`,
+        {},
+        { withCredentials: true }
+      );
+      set({ loading: false });
+      return data;
+    } catch (error) {
+      const errorMessage = error.response?.data?.error || error.response?.data?.message 
+      set({ error: errorMessage, loading: false });
+      throw error;
+    }
+  },
+
   clearState: () => set({ 
     loading: false, 
     loadingOrder: false,

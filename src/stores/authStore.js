@@ -157,21 +157,23 @@ const useAuthStore = create((set) => ({
     }
   },
 
-  deleteUser: async () => {
-    set({ loading: true, error: null });
-    try {
-      await axios.delete(`${AuthApi}/delete-account`, {
-        withCredentials: true
-      });
-      Cookies.remove('token');
-      set({ user: null, token: null, loading: false });
-      return { success: true, message: 'Account deleted successfully.' };
-    } catch (error) {
-      const errorMsg = error.response?.data?.message || error.message || 'Unknown error';
-      set({ loading: false, error: errorMsg });
-      throw new Error(errorMsg);
-    }
-  },
+deleteUser: async () => {
+  set({ loading: true, error: null });
+  try {
+    await axios.delete(`${AuthApi}/delete-account`, { withCredentials: true });
+    Cookies.remove('token');
+    set({ user: null, token: null, loading: false });
+    return { success: true, message: 'Account deleted successfully.' };
+  } catch (error) {
+    const errorMsg =
+      error.response?.data?.message ||
+      error.message ||
+      'Failed to delete account';
+
+    set({ loading: false, error: errorMsg });
+    throw new Error(errorMsg); 
+  }
+},
 
   fetchUserDevices : async () => {
     try {

@@ -1,154 +1,123 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+.ant-input,
+.ant-input-number-input,
+.ant-select-selector,
+.ant-picker {
+  border-radius: 6px !important;
+  border-color: #d9d9d9 !important;
+  transition: all 0.3s ease !important;
+}
 
-.createevent-container {
-  max-width: 500px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.12);
-  font-family: 'Poppins', sans-serif;
+.ant-input:hover,
+.ant-input-number:hover .ant-input-number-input,
+.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
+.ant-picker:hover {
+  border-color: #021529 !important;
+  box-shadow: 0 0 0 2px rgba(2, 21, 41, 0.1) !important;
+}
+.ant-input:focus,
+.ant-input-focused,
+.ant-input-number-input:focus,
+.ant-input-number-focused .ant-input-number-input,
+.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector,
+.ant-picker-focused {
+  border-color: #021529 !important;
+  box-shadow: 0 0 0 2px rgba(2, 21, 41, 0.2) !important;
+}
+
+.ant-steps-item-process .ant-steps-item-icon {
+  background: #021529 !important;
+  border-color: #021529 !important;
+}
+
+.ant-steps-item-process .ant-steps-item-icon > .ant-steps-icon {
+  color: #ffd72d !important;
+}
+
+.ant-steps-item-finish .ant-steps-item-icon {
+  border-color: #021529 !important;
+}
+
+.ant-steps-item-finish .ant-steps-item-icon > .ant-steps-icon {
+  color: #021529 !important;
+}
+
+.ant-steps-item-finish > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title::after {
+  background-color: #021529 !important;
+}
+
+.light-btn {
+  background: #ffd72d;
   color: #021529;
-}
-
-.createevent-container h1 {
-  text-align: center;
-  margin-bottom: 1.5rem;
   font-weight: 600;
-  font-size: 1.8rem;
-  color: #021529;
-}
-
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
-}
-
-.createevent-form-group {
-  display: flex;
-  flex-direction: column;
-  position: relative;
-}
-
-.createevent-form-group input[type="text"],
-.createevent-form-group input[type="number"],
-.createevent-form-group input[type="date"],
-.createevent-form-group select,
-.createevent-form-group textarea {
-  font-family: inherit;
-  font-size: 1rem;
-  padding: 10px 12px;
-  border: 2px solid #021529;
-  border-radius: 6px;
-  color: #021529;
-  background: #f9f9f9;
-  transition: border-color 0.3s ease;
-}
-
-.createevent-form-group input[type="text"]:focus,
-.createevent-form-group input[type="number"]:focus,
-.createevent-form-group input[type="date"]:focus,
-.createevent-form-group select:focus,
-.createevent-form-group textarea:focus {
-  outline: none;
-  border-color: #ffd72d;
-  background: white;
-}
-
-.createevent-form-group textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-.createevent-input-error {
-  border-color: #ff4d4f !important;
-  background: #ffe6e6;
-}
-
-.createevent-error-message {
-  color: #ff4d4f;
-  font-size: 0.85rem;
-  margin-top: 0.25rem;
-  font-weight: 600;
-}
-
-.createevent-dynamic-section {
-  display: flex;
-  flex-direction: column;
-}
-
-.createevent-dynamic-section label {
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: #021529;
-}
-
-.createevent-dynamic-row {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.createevent-dynamic-row input[type="text"],
-.createevent-dynamic-row input[type="number"],
-.createevent-dynamic-row input[type="date"] {
-  flex: 1;
-}
-
-.createevent-remove-btn {
-  background: #ff4d4f;
-  border: none;
-  color: white;
-  font-weight: 700;
-  font-size: 1.3rem;
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.25s ease;
-  line-height: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.createevent-remove-btn:hover {
-  background: #d9363e;
-}
-
-.createevent-add-btn {
-  background: #021529;
-  color: #ffd72d;
-  font-weight: 600;
-  border: none;
+  border: 1px solid #ffd72d;
   padding: 0.4rem 0.8rem;
   border-radius: 6px;
   cursor: pointer;
   width: max-content;
   margin-top: 0.3rem;
-  transition: background 0.3s ease;
+  transition: all 0.3s ease;
   align-self: flex-start;
 }
 
-.createevent-add-btn:hover {
-  background: #ffd72d;
-  color: #021529;
+.light-btn:hover {
+  background: #021529 !important;
+  color: #ffd72d !important;
+  border-color: #021529 !important;
 }
 
-.createevent-submit-btn {
+.dark-btn {
   background: #021529;
   color: #ffd72d;
-  border: none;
+  border: 1px solid #021529;
   padding: 0.8rem 1.2rem;
   border-radius: 8px;
   font-weight: 600;
-  font-size: 1.1rem;
+  font-size: 1.0rem;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: all 0.3s ease;
 }
 
-.createevent-submit-btn:hover {
-  background: #ffd72d;
+.dark-btn:hover {
+  background-color: #06386e !important;
+  border-color: #06386e !important;
+  color: #ffd72d !important;
+}
+
+.ant-upload.ant-upload-select {
+  display: block !important;
+}
+
+.custom-datepicker .ant-picker-input > input {
+  border-radius: 6px;
+}
+.ant-form-item-label > label {
+  font-weight: 500;
   color: #021529;
+}
+
+.ant-card-head {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.ant-card-head-title {
+  font-weight: 600;
+  color: #021529;
+}
+
+.error-message {
+  color: #ff4d4f;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+
+@media (max-width: 768px) {
+  .ant-steps-horizontal:not(.ant-steps-label-vertical) .ant-steps-item {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+  
+  .ant-steps-item-title {
+    font-size: 12px !important;
+  }
 }

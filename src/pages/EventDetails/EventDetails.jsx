@@ -4,10 +4,12 @@ import {
   Button, 
   Tooltip, 
   InputNumber, 
-  Checkbox, 
   message, 
   Spin,
-  Typography 
+  Typography, 
+  Card,
+  Tag,
+  Collapse
 } from 'antd';
 import { 
   EnvironmentOutlined, 
@@ -17,7 +19,8 @@ import {
   HeartFilled, 
   EditOutlined,
   DeleteOutlined,
-  InfoCircleOutlined 
+  DollarCircleOutlined,
+  UserOutlined
 } from '@ant-design/icons';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -27,8 +30,10 @@ import useTicketStore from '../../stores/ticketStore';
 import ConfirmModal from '../../components/ConfirmModal/ConfirmModal';
 import './EventDetails.css';
 import FraudAlertModal from '../../components/FraudAlertModal/FraudAlertModal';
+import RefundTypeTag  from '../../components/RefundTypeTag';
 
 const { Title, Text } = Typography;
+const { Panel } = Collapse;
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -39,7 +44,6 @@ const EventDetails = () => {
   const { 
     createCheckoutSession, 
     loading: checkoutLoading, 
-    error: checkoutError 
   } = useTicketStore();
   
   const [showConfirm, setShowConfirm] = useState(false);
@@ -53,10 +57,12 @@ const EventDetails = () => {
 
   const availableDates = useMemo(() => 
     event?.dates?.map(d => ({
+      id: d.id,
       dayjsDate: dayjs(d.date).startOf('day'),
       time: dayjs(d.date).format('HH:mm'),
       full: d.date,
       location: d.location,
+      pricingTiers: d.pricingTiers || []
     })) || [],
     [event?.dates]
   );
@@ -72,7 +78,6 @@ const EventDetails = () => {
 
   useEffect(() => {
     let isMounted = true;
-    
     const fetchData = async () => {
       try {
         if (id && isMounted) {
@@ -140,7 +145,6 @@ const EventDetails = () => {
     setCalendarValue(closestDate ? closestDate.dayjsDate : dayjs());
   }, [availableDates, findClosestUpcomingDate]);
 
-  // Calendar-related functions
   const disabledDate = useCallback(
     (current) => {
       if (!current) return true;
@@ -157,7 +161,7 @@ const EventDetails = () => {
       return (
         <div
           style={{
-            background: isSelected ? '#d1ac09ff' : 'transparent',
+            background: isSelected ? '#021529' : 'transparent',
             color: isSelected ? '#fff' : 'black',
             borderRadius: 4,
             padding: 4,
@@ -186,6 +190,8 @@ const EventDetails = () => {
       if (dateInfo) {
         setSelectedDate(dateInfo);
         setCalendarValue(value);
+        setSelectedTierIds([]);
+        setQuantities({});
       }
     },
     [availableDates]
@@ -203,7 +209,6 @@ const EventDetails = () => {
     }
     try {
       const response = await toggleFavorite(id);
-      console.log('Toggle favorite response:', response);
       setIsFavorited(response.isFavorited);
       message.success(response.isFavorited ? 'Event added to favorites' : 'Event removed from favorites');
       await useEventStore.getState().fetchFavorites();
@@ -214,7 +219,6 @@ const EventDetails = () => {
 
   const handleDeleteClick = useCallback((e) => {
     e.stopPropagation();
-    console.log("triggered")
     setShowConfirm(true);
   }, []);
 
@@ -230,30 +234,13 @@ const EventDetails = () => {
     }
   }, [deleteEvent, id, navigate]);
 
-  const handleTierChange = useCallback((checkedIds) => {
-    setSelectedTierIds(checkedIds);
-    setQuantities(prev => {
-      const newQuantities = { ...prev };
-      checkedIds.forEach(id => newQuantities[id] = newQuantities[id] || 1);
-      return newQuantities;
-    });
-  }, []);
-
-  const handleQuantityChange = useCallback((tierId, value) => {
-    if (value < 0) return;
-    setQuantities(prev => ({
-      ...prev,
-      [tierId]: value,
-    }));
-  }, []);
-
   const totalPrice = useMemo(() => 
     selectedTierIds.reduce((sum, tierId) => {
-      const tier = event?.pricingTiers?.find(t => t.id === tierId);
+      const tier = selectedDate?.pricingTiers?.find(t => t.id === tierId);
       const qty = quantities[tierId] || 0;
       return sum + (tier ? tier.price * qty : 0);
     }, 0),
-    [selectedTierIds, quantities, event?.pricingTiers]
+    [selectedTierIds, quantities, selectedDate?.pricingTiers]
   );
 
   const handleCheckout = useCallback(async () => {
@@ -399,188 +386,218 @@ const EventDetails = () => {
           style={{ border: '1px solid #ddd', borderRadius: 8 }}
         />
       </div>
+      
+      {authUser?.user?.role !== "organizer" && selectedDate && (
+        <div style={{ margin: '24px 0', padding: 16, background: '#f9f9f9', borderRadius: 8 }}>
+          <Text strong style={{ fontSize: 16 }}>
+            Selected: {selectedDate.dayjsDate.format('YYYY-MM-DD')} at {selectedDate.time} — {selectedDate.location}
+          </Text>
+        </div>
+      )}
 
-      {authUser?.user?.role !== "organizer" && (
+      {authUser?.user?.role !== "organizer" && selectedDate && (
         <div>
-          {selectedDate && (
-            <div style={{ marginTop: 12 }}>
-              <Text strong>
-                {selectedDate.dayjsDate.format('YYYY-MM-DD')} at {selectedDate.time} — {selectedDate.location}
-              </Text>
-            </div>
-          )}
+          <Title level={2} style={{ marginBottom: 16 }}>Ticket Options</Title>
+          
+          <div style={{ marginBottom: 24 }}>
+            {selectedDate.pricingTiers?.map(tier => (
+              <Card
+                key={tier.id}
+                style={{
+                  marginBottom: 16,
+                  border: '1px solid #f0f0f0',
+                  borderRadius: 8,
+                  opacity: tier.capacity > 0 ? 1 : 0.7,
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+                      <Text strong style={{ fontSize: 16 }}>{tier.name}</Text>
+                      {tier.capacity === 0 && (
+                        <Tag color="red" style={{ marginLeft: 8 }}>SOLD OUT</Tag>
+                      )}
+                    </div>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+                      <Text strong style={{ color: '#d1ac09', fontSize: 18 }}>
+                        ${tier.price.toFixed(2)}
+                      </Text>
+                      <Text type="secondary" style={{ marginLeft: 8 }}>
+                        {tier.capacity} seats available
+                      </Text>
+                    </div>
+                    
+                   <div style={{ marginTop: 8 }}>
+                    <RefundTypeTag 
+                      refundType={tier.refundType} 
+                      refundPercentage={tier.refundPercentage} 
+                    />
 
-          <div style={{ marginBottom: 24, textAlign: 'left' }}>
-            <Title level={2}>Select Ticket Types & Quantities</Title>
-
-            <Checkbox.Group
-              value={selectedTierIds}
-              onChange={handleTierChange}
-              style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
-            >
-              {event.pricingTiers.map(tier => (
-                <Checkbox
-                  key={tier.id}
-                  value={tier.id}
-                  disabled={tier.capacity === 0}
-                >
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    {tier.name}
-                    <Tooltip title={`Max seats available: ${tier.capacity}`}>
-                      <InfoCircleOutlined style={{ color: '#888' }} />
-                    </Tooltip>
-                    {tier.capacity === 0 && (
-                      <Text type="danger" style={{ marginLeft: 8 }}>
-                        Sold out
+                    {tier.refundType === "FULL_REFUND" && tier.refundDays && (
+                      <Text type="secondary">
+                        Refundable until {tier.refundDays} days before event
                       </Text>
                     )}
-                  </span>
-                </Checkbox>
-              ))}
-            </Checkbox.Group>
 
-            {selectedTierIds.map(tierId => {
-              const tier = event.pricingTiers.find(t => t.id === tierId);
-              const currentQty = quantities[tierId] || 0;
-
-              return (
-                <div
-                  key={tierId}
-                  style={{
-                    marginTop: 12,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 16,
-                    padding: '8px 12px',
-                    border: '1px solid #ddd',
-                    borderRadius: 6,
-                    backgroundColor: '#f9f9f9',
-                  }}
-                >
-                  <div style={{ flex: 1, fontWeight: 600 }}>
-                    {tier.name} — <Text style={{ color: '#d1ac09ff' }}>${tier.price.toFixed(2)}</Text>
+                    {tier.refundType === "PARTIAL_REFUND" && tier.refundDays && tier.refundPercentage && (
+                      <Text type="secondary">
+                        {tier.refundPercentage}% refund until {tier.refundDays} days before
+                      </Text>
+                    )}
                   </div>
-                  <div style={{ minWidth: 180, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Text>Quantity:</Text>
+                  </div>
+                  
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
                     <InputNumber
                       min={0}
                       max={tier.capacity}
-                      value={currentQty}
-                      onChange={value => {
-                        if (value > tier.capacity) {
-                          message.warning(`Max seats for ${tier.name} is ${tier.capacity}`);
-                          return;
-                        }
-                        handleQuantityChange(tierId, value);
+                      value={quantities[tier.id] || 0}
+                      onChange={(value) => {
+                        if (value === null || value < 0) return;
+                        const newValue = Math.min(value, tier.capacity);
+                        setQuantities(prev => ({
+                          ...prev,
+                          [tier.id]: newValue
+                        }));
+                   
+                        setSelectedTierIds(prev => {
+                          if (newValue > 0 && !prev.includes(tier.id)) {
+                            return [...prev, tier.id];
+                          } else if (newValue <= 0 && prev.includes(tier.id)) {
+                            return prev.filter(id => id !== tier.id);
+                          }
+                          return prev;
+                        });
                       }}
-                      disabled={!selectedTierIds.includes(tierId)}
-                      style={{ width: 90 }}
+                      disabled={tier.capacity === 0}
+                      style={{ width: 80, marginRight: 8 }}
                     />
-                    <Tooltip title={`Max seats available: ${tier.capacity}`}>
-                      <Text type="secondary" style={{ fontSize: 12 }}>
-                        / {tier.capacity} available
-                      </Text>
-                    </Tooltip>
+                    <Text>Qty</Text>
                   </div>
                 </div>
-              );
-            })}
+              </Card>
+            ))}
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              {selectedTierIds.length > 0 && (
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}
-                >
-                  <div style={{ fontSize: 24, fontWeight: 'bold' }}>
-                    Total:{' '}
-                    <Text style={{ color: '#d1ac09ff' }}>${totalPrice.toFixed(2)}</Text>
-                  </div>
-                </div>
-              )}
-            </div>
+          <div style={{ 
+            position: 'sticky', 
+            bottom: 0, 
+            background: '#fff', 
+            padding: '16px 0',
+            borderTop: '1px solid #f0f0f0',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <Title level={4} style={{ margin: 0 }}>
+              Total: <Text style={{ color: '#d1ac09' }}>${totalPrice.toFixed(2)}</Text>
+            </Title>
             <Button
               type="primary"
               size="large"
               disabled={
                 !selectedDate || 
-                selectedTierIds.length === 0 || 
                 totalPrice === 0 ||
-                selectedTierIds.every(tierId => {
-                  const tier = event.pricingTiers.find(t => t.id === tierId);
-                  return !tier || tier.capacity === 0;
-                })
+                Object.values(quantities).every(qty => qty <= 0)
               }
               onClick={handleCheckout}
               loading={checkoutLoading}
               className='buy-ticket-btn'
             >
-              {checkoutLoading ? 'Processing...' : 'Buy Ticket'}
+              {checkoutLoading ? 'Processing...' : 'Continue to Payment'}
             </Button>
             <FraudAlertModal
               visible={isFraudModalVisible}
               onClose={() => setIsFraudModalVisible(false)}
             />
           </div>
-
-          
         </div>
       )}
-          <ConfirmModal
-            visible={showConfirm}
-            onConfirm={handleDeleteConfirm}
-            onCancel={() => setShowConfirm(false)}
-            title="Are you sure you want to delete this event?"
-          />
+
+      <ConfirmModal
+        visible={showConfirm}
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setShowConfirm(false)}
+        title="Are you sure you want to delete this event?"
+      />
       {authUser?.user?.role === "organizer" && (
         <div>
           <Title level={2}>Ticket Pricing Overview</Title>
-          {availableDates?.length > 0 && (
-            <div style={{ marginBottom: 16 }}>
-              <Text strong>Available Dates:</Text>
-              <ul>
-                {availableDates.map((date, idx) => (
-                  <li key={idx}>
-                    {date.dayjsDate.format('YYYY-MM-DD')} — {date.location}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {event.pricingTiers.map(tier => (
-              <div
-                key={tier.id}
-                style={{
-                  padding: '12px 16px',
-                  border: '1px solid #ddd',
-                  borderRadius: 6,
-                  backgroundColor: '#fafafa',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
+          <Collapse defaultActiveKey={['0']} style={{ marginBottom: 24 }}>
+            {availableDates.map((date, index) => (
+              <Panel 
+                header={`${date.dayjsDate.format('YYYY-MM-DD')} at ${date.time} - ${date.location}`} 
+                key={index}
               >
-                <div>
-                  <strong>{tier.name}</strong>
-                  <br />
-                  <Text style={{ color: '#766209ff' }}>${tier.price.toFixed(2)}</Text>
-                </div>
-                <div>
-                  {tier.capacity === 0 ? (
-                    <Text type="danger">Sold out</Text>
-                  ) : (
-                    <Text type="secondary">{tier.capacity} seats available</Text>
-                  )}
-                </div>
-              </div>
+                {date.pricingTiers?.map(tier => (
+                  <Card
+                    key={tier.id}
+                    style={{
+                      marginBottom: 16,
+                      border: '1px solid #f0f0f0',
+                      borderRadius: 8,
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+                          <Text strong style={{ fontSize: 16 }}>{tier.name}</Text>
+                          {tier.capacity === 0 && (
+                            <Tag color="red" style={{ marginLeft: 8 }}>SOLD OUT</Tag>
+                          )}
+                        </div>
+
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 16,
+                          flexWrap: 'wrap'
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <DollarCircleOutlined style={{ color: '#d1ac09', marginRight: 4 }} />
+                            <Text strong style={{ color: '#d1ac09', fontSize: 18, minWidth: 80 }}>
+                              ${tier.price.toFixed(2)}
+                            </Text>
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+                            <Tag color="blue">{tier.refundType}</Tag>
+                            {tier.refundType === 'Full Refund' && tier.refundDays && (
+                              <Text type="secondary" style={{ fontSize: 14 }}>
+                                Refundable until {tier.refundDays} days before event
+                              </Text>
+                            )}
+                            {tier.refundType === 'Partial Refund' && tier.refundDays && tier.refundPercentage && (
+                              <Text type="secondary" style={{ fontSize: 14 }}>
+                                {tier.refundPercentage}% refund until {tier.refundDays} days before
+                              </Text>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        backgroundColor: '#f5f5f5',
+                        padding: '4px 8px',
+                        borderRadius: 4
+                      }}>
+                        <UserOutlined style={{ marginRight: 4, color: '#666' }} />
+                        <Text strong style={{ fontSize: 16, color: '#333' }}>
+                          {tier.capacity} seats
+                        </Text>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </Panel>
             ))}
-          </div>
+          </Collapse>
         </div>
       )}
     </div>

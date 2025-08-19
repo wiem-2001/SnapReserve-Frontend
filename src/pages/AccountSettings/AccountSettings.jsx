@@ -16,37 +16,42 @@ import SidebarMenu from '../../AppLayout/SidebarMenu/SidebarMenu';
 import { format } from 'date-fns';
 import ConfirmModal from '../../components/ConfirmModal/ConfirmModal'; 
 import useAuthStore from '../../stores/authStore'; 
+import toast from 'react-hot-toast';
 
 function AccountSettings() {
   const navigate = useNavigate();
   const deleteUser = useAuthStore((state) => state.deleteUser);
-  const fetchUserDevices = useAuthStore(state => state.fetchUserDevices);
-  const devices = useAuthStore(state => state.devices);
+  const fetchUserDevices = useAuthStore((state) => state.fetchUserDevices);
+  const devices = useAuthStore((state) => state.devices);
   
   const [loading, setLoading] = useState(false);
   const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(3);  // Show first 3 devices initially
+  const [visibleCount, setVisibleCount] = useState(3);  
 
-  const handleDeleteAccount = async () => {
-    setLoading(true);
-    try {
-      await deleteUser();
-      message.success('Account has been deleted');
-      setDeleteModalVisible(false);
-      navigate('/');
-    } catch (error) {
-      message.error(error.message || 'Failed to delete account.');
-    } finally {
-      setLoading(false);
-    }
-  };
+const handleDeleteAccount = async () => {
+  setLoading(true);
+  try {
+    await deleteUser();
+    toast.success('Account has been deleted');
+    setDeleteModalVisible(false);
+    navigate('/');
+  } catch (error) {
+    console.error("Delete error:", error);
+    toast.error(error.message || 'Failed to delete account');
+    setDeleteModalVisible(false);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   useEffect(() => {
     fetchUserDevices();
   }, [fetchUserDevices]);
 
   const handleLoadMore = () => {
-    setVisibleCount(prev => prev + 3);  // Load 3 more devices
+    setVisibleCount((prev) => prev + 3);  
   };
 
   return (
@@ -56,6 +61,7 @@ function AccountSettings() {
         <SidebarMenu />
         <Layout.Content style={{ padding: '24px', background: '#fff' }}>
           <div style={{ maxWidth: 800, margin: '0 auto' }}>
+         
             <Card 
               title="Recent Activity" 
               className="settings-card"
@@ -63,7 +69,7 @@ function AccountSettings() {
             >
               <List
                 itemLayout="horizontal"
-                dataSource={devices.slice(0, visibleCount)}  // Only show visibleCount devices
+                dataSource={devices.slice(0, visibleCount)}  
                 renderItem={(item) => (
                   <List.Item>
                     <List.Item.Meta
@@ -71,8 +77,12 @@ function AccountSettings() {
                       title="Device used"
                       description={
                         <>
-                          <span>{format(new Date(item.lastUsed), 'yyyy-MM-dd HH:mm:ss')}</span>
-                          {item.device && <Tag style={{ marginLeft: 8 }}>{item.friendlyDevice}</Tag>}
+                          <span>
+                            {format(new Date(item.lastUsed), 'yyyy-MM-dd HH:mm:ss')}
+                          </span>
+                          {item.device && (
+                            <Tag style={{ marginLeft: 8 }}>{item.friendlyDevice}</Tag>
+                          )}
                         </>
                       }
                     />
@@ -128,6 +138,7 @@ function AccountSettings() {
       </Layout>
       <AppFooter />
 
+ 
       <ConfirmModal
         visible={isDeleteModalVisible}
         title="Permanently Delete Your Account?"
@@ -138,10 +149,13 @@ function AccountSettings() {
         loading={loading}
       >
         <p>This action cannot be undone. All your data will be permanently deleted.</p>
+        <p style={{ color: '#ff4d4f', marginTop: 8 }}>
+          Note: If you have events with tickets that have been sold, 
+          you won't be able to delete your account until those events are completed.
+        </p>
       </ConfirmModal>
     </div>
   );
 }
 
 export default AccountSettings;
-  

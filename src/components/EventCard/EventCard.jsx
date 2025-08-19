@@ -6,23 +6,23 @@ import {
   HeartOutlined, 
   HeartFilled, 
   EditOutlined, 
-  FieldTimeOutlined, 
   DeleteOutlined 
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import useAuthStore from '../../stores/authStore';
 import useEventStore from '../../stores/eventStore';
 import ConfirmModal from '../ConfirmModal/ConfirmModal';
 import './EventCard.css'; 
 
+// ---------------- Timer Component ----------------
 const CountdownTimer = ({ targetDate }) => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 });
 
   useEffect(() => {
-    const updateTime = () => {
-      if (!targetDate) return;
+    if (!targetDate) return;
 
+    const updateTime = () => {
       const now = dayjs();
       const diffMs = dayjs(targetDate).diff(now);
 
@@ -56,6 +56,7 @@ const CountdownTimer = ({ targetDate }) => {
   );
 };
 
+// ---------------- Helper ----------------
 const getNearestDateEntry = (dates = []) => {
   const now = dayjs();
   const futureDates = dates
@@ -64,22 +65,47 @@ const getNearestDateEntry = (dates = []) => {
   return futureDates.length > 0 ? futureDates[0] : null;
 };
 
+// ---------------- Main Component ----------------
 const EventCard = ({ event, onDelete }) => {
   const [isFavorited, setIsFavorited] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
   const nearestDate = getNearestDateEntry(event.dates);
+
   const { user: authUser, getMe } = useAuthStore();
+  const { deleteEvent, toggleFavorite, favoriteEvents, fetchFavorites } = useEventStore();
+
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState(null);
-  const { deleteEvent, toggleFavorite, favoriteEvents } = useEventStore();
 
+  // --- Delete Event ---
   const handleDeleteClick = (e, eventId) => {
     e.stopPropagation();
     setSelectedEventId(eventId);
     setShowConfirm(true);
   };
 
+  const handleDeleteConfirm = async () => {
+    try {
+      await deleteEvent(selectedEventId);
+      message.success('Event deleted successfully');
+
+      if (onDelete) onDelete(selectedEventId);
+      if (location.pathname !== '/manage-events') {
+        navigate('/manage-events');
+      }
+
+    } catch (error) {
+      message.error(error.response?.data?.message || 'Failed to delete event');
+    } finally {
+      setShowConfirm(false);
+      setSelectedEventId(null);
+    }
+  };
+
+  // --- Toggle Favorite ---
   const handleToggleFavorite = async (e) => {
     e.stopPropagation();
     if (!authUser?.user) {
@@ -90,13 +116,38 @@ const EventCard = ({ event, onDelete }) => {
     try {
       const response = await toggleFavorite(event.id);
       setIsFavorited(response.isFavorited);
-      message.success(response.isFavorited ? 'Event added to favorites' : 'Event removed from favorites');
-      await useEventStore.getState().fetchFavorites(); 
+      message.success(response.isFavorited ? 'Added to favorites' : 'Removed from favorites');
+      await fetchFavorites(); 
     } catch (error) {
       message.error(error || 'Failed to toggle favorite');
     }
   };
 
+  // --- Load User + Favorites ---
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (!authUser?.user) {
+          await getMe();
+        }
+        if (authUser?.user?.role === "attendee") {
+          await fetchFavorites();
+        }
+      } catch (err) {
+        message.error(err.response?.data?.message || 'Failed to load user data or favorites');
+      }
+    };
+    fetchData();
+  }, [authUser?.user, getMe, fetchFavorites]);
+
+  // --- Sync favorite state ---
+  useEffect(() => {
+    if (favoriteEvents && event?.id) {
+      setIsFavorited(favoriteEvents.some(fav => fav.eventId === event.id));
+    }
+  }, [favoriteEvents, event?.id]);
+
+  // --- Navigate to details ---
   const handleCardDetails = (eventId) => {
     if (authUser?.user?.role === "organizer") {
       navigate(`/organizer-event-details/${eventId}`);
@@ -104,56 +155,6 @@ const EventCard = ({ event, onDelete }) => {
       navigate(`/event-details/${eventId}`);
     }
   };
-
-  const handleDeleteConfirm = async () => {
-    try {
-      await deleteEvent(selectedEventId);
-      message.success('Event deleted successfully');
-      navigate('/manage-events');
-      if (onDelete) {
-        onDelete(selectedEventId);
-      }
-    } catch (error) {
-      message.error(error.response?.data?.message || 'Failed to delete event');
-    } finally {
-      setShowConfirm(false);
-      setSelectedEventId(null);
-    }
-  };
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchUserAndFavorites = async () => {
-      try {
-
-        if (!authUser?.user && isMounted) {
-          await getMe();
-        }
-
-        if (authUser?.user?.role === "attendee" && isMounted) {
-          await useEventStore.getState().fetchFavorites();
-        }
-      } catch (err) {
-        if (isMounted) {
-          message.error(err.response?.data?.message || 'Failed to load user data or favorites');
-        }
-      }
-    };
-
-    fetchUserAndFavorites();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [getMe]); 
-
-  useEffect(() => {
-    if (favoriteEvents && event?.id) {
-      const isEventFavorited = favoriteEvents.some(fav => fav.eventId === event.id);
-      setIsFavorited(isEventFavorited);
-    }
-  }, [favoriteEvents, event?.id]);
 
   return (
     <div
@@ -168,12 +169,13 @@ const EventCard = ({ event, onDelete }) => {
         cover={
           <img
             alt={event.title}
-            src={`${import.meta.env.VITE_API_URL}${event.image}`}
+            src={event.image ? `${import.meta.env.VITE_API_URL}${event.image}` : '/placeholder.jpg'}
             crossOrigin="anonymous"
             className="event-card-image"
           />
         }
       >
+        {/* Organizer buttons or favorite button */}
         {authUser?.user?.role === "organizer" ? (
           <div className="event-card-action-btns">
             <Button
@@ -201,6 +203,7 @@ const EventCard = ({ event, onDelete }) => {
           />
         )}
         
+        {/* Event Info */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <h3 className="event-card-title">{event.title}</h3>
           <p className="event-card-description">{event.description}</p>
@@ -224,6 +227,7 @@ const EventCard = ({ event, onDelete }) => {
           </div>
         </div>
 
+        {/* Hover Overlay */}
         {isHovered && (
           <div className="event-card-hover-overlay">
             <CountdownTimer targetDate={nearestDate?.date} />
@@ -235,13 +239,14 @@ const EventCard = ({ event, onDelete }) => {
                 e.stopPropagation();
                 handleCardDetails(event.id);
               }}
-            >    {authUser?.user?.role === "attendee" ? "Book Now" : "View Details"}
-              
+            >
+              {authUser?.user?.role === "attendee" ? "Book Now" : "View Details"}
             </Button>
           </div>
         )}
       </Card>
 
+      {/* Confirm Delete Modal */}
       <ConfirmModal
         visible={showConfirm}
         onConfirm={handleDeleteConfirm}
