@@ -204,3 +204,23 @@ background-color: #06386e !important;
   display: flex;
   justify-content: center;
 }
+.discount-info {
+  margin-top: 16px;
+  padding: 12px;
+  background: #f6ffed;
+  border: 1px solid #b7eb8f;
+  border-radius: 8px;
+}
+
+.discount-row, .original-price-row {
+  margin: 4px 0;
+}
+
+.discount-amount {
+  color: #52c41a;
+  font-weight: 500;
+}
+
+.original-label, .original-amount {
+  font-size: 14px;
+}

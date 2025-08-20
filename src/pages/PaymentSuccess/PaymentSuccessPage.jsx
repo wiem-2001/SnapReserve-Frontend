@@ -190,6 +190,37 @@ export default function PaymentSuccessPage() {
           </Title>
         </Row>
 
+          {orderDetails.wasDiscountApplied && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="discount-info"
+            >
+              <Row justify="space-between" align="middle" className="discount-row">
+                <Text type="secondary" className="discount-label">
+                  <Tag color="green" icon={<CheckCircleOutlined />}>
+                    20% Welcome Discount Applied
+                  </Tag>
+                </Text>
+                <Text type="secondary" className="discount-amount">
+                  -${orderDetails.discountAmount.toFixed(2)}
+                </Text>
+              </Row>
+              
+              <Row justify="space-between" align="middle" className="original-price-row">
+                <Text type="secondary" className="original-label">
+                  Original Price
+                </Text>
+                <Text delete type="secondary" className="original-amount">
+                  ${orderDetails.originalTotal.toFixed(2)}
+                </Text>
+              </Row>
+            </motion.div>
+          )}
+
+          <Divider className="section-divider" />
+
         <Space direction="vertical" size="large" className="order-status">
           <p className="status-text-simple">
             Your payment has been successfully processed.

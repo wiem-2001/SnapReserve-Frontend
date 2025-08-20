@@ -3,34 +3,166 @@ import Header from '../AppLayout/Header/Header';
 import AppFooter from '../AppLayout/Footer';
 import EventsList from '../components/EventList/EventList';
 import ScratchCard from '../components/ScratchCard/ScratchCard';
-
+import useDealsStore from '../stores/dealsStore';
+import { Button } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
 
 function Events() {
-  const [showScratchCard, setShowScratchCard] = useState(true);
-  const [isBackgroundBlurred, setIsBackgroundBlurred] = useState(true);
-
+  const [showScratchCard, setShowScratchCard] = useState(false);
+  const [isBackgroundBlurred, setIsBackgroundBlurred] = useState(false);
+  const [showEligibilityReminder, setShowEligibilityReminder] = useState(false);
+  const { eligible, welcome_gift_expiry, loading, fetchScratchEligibility } = useDealsStore();
 
   useEffect(() => {
-    const hasSeenScratchCard = localStorage.getItem('hasSeenScratchCard');
-    if (hasSeenScratchCard) {
-      setShowScratchCard(false);
-      setIsBackgroundBlurred(false);
+    const checkEligibility = async () => {
+      await fetchScratchEligibility();
+    };
+    checkEligibility();
+  }, [fetchScratchEligibility]);
+
+  useEffect(() => {
+    const hasDisplayedScratchCard = localStorage.getItem('scratchCardDisplayed') === 'true';
+    const currentTime = new Date();
+    const expiryTime = welcome_gift_expiry ? new Date(welcome_gift_expiry) : null;
+    
+    // Check if eligible, not expired, and not loading
+    const isActuallyEligible = eligible === true && 
+                              expiryTime && 
+                              currentTime < expiryTime;
+    
+    if (isActuallyEligible && !loading) {
+      if (!hasDisplayedScratchCard) {
+        setShowScratchCard(true);
+        setIsBackgroundBlurred(true);
+        localStorage.setItem('scratchCardDisplayed', 'true');
+      } else {
+        setShowEligibilityReminder(true);
+      }
+    } else {
+      // Hide reminder if expired or not eligible
+      setShowEligibilityReminder(false);
     }
-  }, []);
+  }, [eligible, loading, welcome_gift_expiry]);
 
   const handleDismiss = () => {
     setShowScratchCard(false);
-    setIsBackgroundBlurred(false);
-    localStorage.setItem('hasSeenScratchCard', 'true');
+    setTimeout(() => {
+      setIsBackgroundBlurred(false);
+    }, 300);
   };
 
   const handleScratchComplete = () => {
-    setIsBackgroundBlurred(false);
+    setTimeout(() => {
+      setIsBackgroundBlurred(false);
+    }, 300);
   };
+
+  const handleCloseReminder = () => {
+    setShowEligibilityReminder(false);
+  };
+
+  const formatExpiryDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  if (loading) {
+    return (
+      <div>
+        <Header />
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+          <p>Loading...</p>
+        </div>
+        <AppFooter />
+      </div>
+    );
+  }
 
   return (
     <div>
       <Header />
+      
+      {showEligibilityReminder && (
+        <div style={{ 
+          padding: '16px 24px', 
+          backgroundColor: '#021529', 
+          border: '2px solid white',
+          borderRadius: '8px',
+          margin: '20px 50px',
+          position: 'relative'
+        }}>
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            color: 'white'
+          }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ 
+                  fontSize: '20px', 
+                  fontWeight: 'bold' 
+                }}>
+                  🎉
+                </span>
+                <div>
+                  <div style={{ 
+                    fontSize: '16px', 
+                    fontWeight: 'bold',
+                    marginBottom: '4px'
+                  }}>
+                    You're eligible for 20% off your first purchase!
+                  </div>
+                  <div style={{ 
+                    fontSize: '14px',
+                    opacity: 0.9
+                  }}>
+                    Your welcome discount expires on <strong>{formatExpiryDate(welcome_gift_expiry)}</strong>. 
+                    The discount will be automatically applied at checkout.
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <Button
+              type="text"
+              icon={<CloseOutlined />}
+              onClick={handleCloseReminder}
+              style={{
+                color: 'white',
+                border: 'none',
+                minWidth: 'auto',
+                padding: '4px 8px',
+                transition: 'all 0.2s ease',
+                borderRadius: '4px'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(255, 215, 45, 0.1)';
+                e.currentTarget.style.transform = 'scale(1.1)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.transform = 'scale(1)';
+              }}
+              onMouseDown={(e) => {
+                e.currentTarget.style.transform = 'scale(0.95)';
+              }}
+              onMouseUp={(e) => {
+                e.currentTarget.style.transform = 'scale(1.1)';
+              }}
+            />
+          </div>
+        </div>
+      )}
+
       <div style={{ 
         position: 'relative',
         marginLeft: '50px',
@@ -40,9 +172,9 @@ function Events() {
       }}>
         <EventsList />
       </div>
+      
       <AppFooter />
 
-  
       {isBackgroundBlurred && (
         <div style={{
           position: 'fixed',
@@ -56,7 +188,6 @@ function Events() {
         }} />
       )}
 
-    
       {showScratchCard && (
         <ScratchCard 
           onDismiss={handleDismiss}

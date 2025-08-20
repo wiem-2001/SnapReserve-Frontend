@@ -4,7 +4,8 @@ import scratchOverlay from '../../assets/scratchcard.png';
 import scratchRevealed from '../../assets/scratchRevealed.png';
 import scratchSound from '../../assets/scratch.mp3'; 
 
-const ScratchCard = ({
+const ScratchCard = (
+  {
   onDismiss,
   onScratchComplete,
 }: {
@@ -18,7 +19,6 @@ const ScratchCard = ({
   const [isScratched, setIsScratched] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Load overlay image
   useEffect(() => {
     overlayImage.current.src = scratchOverlay;
     overlayImage.current.onload = drawInitialCanvas;
@@ -29,7 +29,6 @@ const ScratchCard = ({
     };
   }, []);
 
-  // Init audio
   useEffect(() => {
     audioRef.current = new Audio(scratchSound);
     audioRef.current.loop = true;
@@ -174,22 +173,6 @@ const ScratchCard = ({
           marginTop: '30px',
         }}
       />
-
-      {isScratched && (
-        <Button
-          type="primary"
-          style={{
-            position: 'absolute',
-            bottom: '20px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 2,
-          }}
-          onClick={onDismiss}
-        >
-          Continue
-        </Button>
-      )}
     </div>
   );
 };
