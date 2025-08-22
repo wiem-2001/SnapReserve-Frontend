@@ -21,6 +21,7 @@ const PurchasedTickets = () => {
 
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
+    const [refreshTrigger, setRefreshTrigger] = useState(false); 
 
   useEffect(() => {
     const loadUser = async () => {
@@ -37,7 +38,13 @@ const PurchasedTickets = () => {
     if (authUser?.user?.id) {
       fetchTickets(authUser.user.id);
     }
-  }, [authUser?.user?.id, fetchTickets]);
+  }, [authUser?.user?.id, fetchTickets,refreshTrigger]);
+  const handleProcessingChange = async (processing) => {
+    setIsProcessing(processing);
+    if (!processing) {
+      setRefreshTrigger(prev => !prev);
+    }
+  };
 
   const isLoading = authLoading || ticketsLoading || isProcessing;
 
@@ -149,7 +156,7 @@ const PurchasedTickets = () => {
                       <Ticket 
                         key={ticket.id} 
                         ticket={ticket} 
-                        onProcessingChange={setIsProcessing} 
+                        onProcessingChange={handleProcessingChange} 
                       />
                     ))}
                   </Suspense>

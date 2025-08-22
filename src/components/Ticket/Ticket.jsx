@@ -22,12 +22,6 @@ const Ticket = ({ ticket, onProcessingChange }) => {
     setShowMenu(false);
     if (!ticketRef.current) return;
     
-    const statusBanner = ticketRef.current.querySelector('.ticket-status-banner');
-    const statusTag = statusBanner ? statusBanner.querySelector('.ant-tag:last-child') : null;
-  
-    if (statusTag) {
-      statusTag.style.display = 'none';
-    }
     
     await new Promise(resolve => setTimeout(resolve, 100));
     const canvas = await html2canvas(ticketRef.current, { scale: 2 });
@@ -59,15 +53,6 @@ const Ticket = ({ ticket, onProcessingChange }) => {
     }
   };
 
-  const getRefundStatusTag = () => {
-    switch(ticket.refundStatus) {
-      case 'PROCESSED':
-        return <Tag color="green">Refund Processed</Tag>;
-      default:
-        return null;
-    }
-  };
-
   return (
     <div className="ticket-card" ref={ticketRef}>
       {loading && (
@@ -75,7 +60,6 @@ const Ticket = ({ ticket, onProcessingChange }) => {
           <Spin size="large" tip="Processing refund..." />
         </div>
       )}
-
       <div className="ticket-header">
         <div className="header-shine"></div>
         <h2>{ticket.event?.title || 'Event Title'}</h2>
@@ -90,7 +74,6 @@ const Ticket = ({ ticket, onProcessingChange }) => {
           )}
         </div>
       </div>
-
       <div className="ticket-body">
         <div className="event-date">
           <div className="date-badge">
@@ -102,11 +85,13 @@ const Ticket = ({ ticket, onProcessingChange }) => {
             <p>Time: <strong>{format(eventDate, 'h:mm a')}</strong></p>
           </div>
         </div>
-        <div className="ticket-status-banner">
+        <div >
           <RefundTypeTag 
             refundType={ticket.tier?.refundType} 
             refundPercentage={ticket.tier?.refundPercentage} 
           />
+          {ticket.refundStatus ==="PROCESSED" && (<Tag color="green">Refund Processed</Tag>)}
+          {ticket.refundStatus ==="NONE" && (<Tag color="red">No refund Processed</Tag>)}
         </div>
         <div className="event-venue">
           <p className="section-label">Venue</p>
