@@ -3,7 +3,6 @@ import { Routes, Route } from 'react-router-dom';
 import Deals from '../pages/Deals';
 import ForgetPassword from '../pages/ForgetPassword';
 import Profile from '../pages/Profile/Profile';
-import Resell from '../pages/Resell';
 import LoginPage from '../pages/LoginPage/LoginPage';
 import VerifyEmail from '../pages/VerifyEmail';
 import NotFound from '../pages/NotFound';
@@ -14,55 +13,173 @@ import CheckRestPasswordEmail from '../pages/CheckRestPasswordEmail';
 import Layout from '../AppLayout/Layout';
 import Events from '../pages/Events';
 import PurchasedTickets from '../pages/purchased-tickets/PurchasedTickets.jsx';
-import Preferences from '../pages/Favorites/Favorites.jsx';
-
 import AccountSettings from '../pages/AccountSettings/AccountSettings.jsx';
 import CreateEvent from '../pages/CreateEvent/CreateEvent.jsx';
 import OrganizerAnalytics from '../pages/OrganizerAnalytics.jsx';
-import PaymentInfo from '../pages/PaymentInfo.jsx';
 import EventDetails from '../pages/EventDetails/EventDetails.jsx';
 import EditEvent from '../pages/EditEvent.jsx';
 import OrganizerEventDetails from '../pages/OrganizerEventDetails.jsx';
 import PaymentSuccessPage from '../pages/PaymentSuccess/PaymentSuccessPage.jsx';
 import ManageEvents from '../pages/ManageEvents/ManageEvents.jsx';
 import Notifications from '../pages/Notifications/Notifications.jsx';
-import OrganizerDashboard from '../pages/OrganizerDashboard/OrganizerDashboard.js';
 import Favorites from '../pages/Favorites/Favorites.jsx';
+import PointsDashboard from '../pages/PointsDashboard/PointsDashboard.jsx';
+import ProtectedRoute from './ProtectedRoute.jsx';
+import Unauthorized from '../pages/Unauthorized.jsx';
+
 const AppRoutes = () => {
   return (
     <Routes>
+      {/* Public routes */}
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
+      <Route path="/verify-email" element={<VerifyEmail />} />
+      <Route path="/forgot-password" element={<ForgetPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/verified" element={<Verified />} />
+      <Route path="/check-email" element={<CheckRestPasswordEmail />} />
+      <Route path="/" element={<Events />} />
+      <Route path="/unauthorized" element={<Unauthorized />} />
 
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage/>} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
-        <Route path="/forgot-password" element={<ForgetPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/verified" element={<Verified />} />
-        <Route path="/check-email" element={<CheckRestPasswordEmail />} />
 
-        <Route path="/" element={<Events />} />
-        <Route path="/deals" element={<Layout ><Deals /></Layout>} />
-        <Route path="/resell" element={<Layout><Resell /></Layout>} />
-        <Route path="/profile" element={<Layout><Profile /></Layout>} />
-        <Route path="/manage-events" element={<ManageEvents/>} />
-        <Route path="/purchased-tickets" element={<Layout><PurchasedTickets/></Layout>} />
-        <Route path="/favorites" element={<Layout><Favorites/></Layout>} />
-        <Route path="/payment-info" element={<PaymentInfo/>} />
-        <Route path="/notifications" element={<Layout><Notifications/></Layout>} />
-        <Route path="/account-settings" element={<AccountSettings/>} />
-        <Route path="/create-event" element={<CreateEvent/>} />
-        <Route path="/edit-event/:id" element={<EditEvent/>} />
-        <Route path="/analytics" element={<OrganizerAnalytics/>} />
-        <Route path="/event-details/:id" element={<Layout><EventDetails /></Layout>} />
-        <Route path="/organizer-event-details/:id" element={<Layout><OrganizerEventDetails /></Layout>} />
-        <Route path="/purchase/success" element = {<PaymentSuccessPage />} />
+      {/* Common routes accessible to all authenticated users */}
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute allowedRoles={['attendee', 'organizer']}>
+            <Layout>
+              <Profile />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/notifications"
+        element={
+          <ProtectedRoute allowedRoles={['attendee', 'organizer']}>
+            <Layout>
+              <Notifications />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/account-settings"
+        element={
+          <ProtectedRoute allowedRoles={['attendee', 'organizer']}>
+            <AccountSettings />
+          </ProtectedRoute>
+        }
+      />
 
-        <Route path="/organizerDashboard" element={<Layout ><OrganizerDashboard /></Layout>} />
+      {/* Organizer-only routes */}
+      <Route
+        path="/manage-events"
+        element={
+           <ProtectedRoute allowedRoles={['organizer']}>
+            <ManageEvents />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/create-event"
+        element={
+          <ProtectedRoute allowedRoles={['organizer']}>
+            <CreateEvent />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/edit-event/:id"
+        element={
+          <ProtectedRoute allowedRoles={['organizer']}>
+            <EditEvent />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/analytics"
+        element={
+          <ProtectedRoute allowedRoles={['organizer']}>
+            <OrganizerAnalytics />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/organizer-event-details/:id"
+        element={
+          <ProtectedRoute allowedRoles={['organizer']}>
+            <Layout>
+              <OrganizerEventDetails />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
 
-        <Route path="*" element={<NotFound />} />
+      {/* Attendee-only routes */}
+      <Route
+        path="/deals"
+        element={
+          <ProtectedRoute allowedRoles={['attendee']}>
+            <Layout>
+              <Deals />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/purchased-tickets"
+        element={
+          <ProtectedRoute allowedRoles={['attendee']}>
+            <Layout>
+              <PurchasedTickets />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/favorites"
+        element={
+          <ProtectedRoute allowedRoles={['attendee']}>
+            <Layout>
+              <Favorites />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/event-details/:id"
+        element={
+          <ProtectedRoute allowedRoles={['attendee']}>
+            <Layout>
+              <EventDetails />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/purchase/success"
+        element={
+          <ProtectedRoute allowedRoles={['attendee']}>
+            <PaymentSuccessPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/points-dashboard"
+        element={
+          <ProtectedRoute allowedRoles={['attendee']}>
+            <Layout>
+              <PointsDashboard />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Catch-all route */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };
 
 export default AppRoutes;
-
