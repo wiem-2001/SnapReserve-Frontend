@@ -7,7 +7,8 @@ import {
   Avatar, 
   Tag, 
   Button,
-  message
+  message,
+  Alert
 } from 'antd';
 import { HistoryOutlined, DeleteOutlined } from '@ant-design/icons';
 import Header from '../../AppLayout/Header/Header';
@@ -23,35 +24,42 @@ function AccountSettings() {
   const deleteUser = useAuthStore((state) => state.deleteUser);
   const fetchUserDevices = useAuthStore((state) => state.fetchUserDevices);
   const devices = useAuthStore((state) => state.devices);
-  
+  const soldTickets = useAuthStore((state) => state.soldTickets); 
+
   const [loading, setLoading] = useState(false);
   const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
   const [visibleCount, setVisibleCount] = useState(3);  
-
-const handleDeleteAccount = async () => {
-  setLoading(true);
-  try {
-    await deleteUser();
-    toast.success('Account has been deleted');
-    setDeleteModalVisible(false);
-    navigate('/');
-  } catch (error) {
-    console.error("Delete error:", error);
-    toast.error(error.message || 'Failed to delete account');
-    setDeleteModalVisible(false);
-  } finally {
-    setLoading(false);
-  }
-};
-
-
 
   useEffect(() => {
     fetchUserDevices();
   }, [fetchUserDevices]);
 
+  const handleDeleteAccount = async () => {
+    setLoading(true);
+    try {
+      await deleteUser();
+      toast.success('Account has been deleted');
+      setDeleteModalVisible(false);
+      navigate('/');
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error(error.message || 'Failed to delete account');
+      setDeleteModalVisible(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleLoadMore = () => {
     setVisibleCount((prev) => prev + 3);  
+  };
+
+  const handleDeleteClick = () => {
+    if (soldTickets?.length > 0) {
+      message.warning("You cannot delete your account until events with sold tickets are completed.");
+    } else {
+      setDeleteModalVisible(true);
+    }
   };
 
   return (
@@ -61,7 +69,6 @@ const handleDeleteAccount = async () => {
         <SidebarMenu />
         <Layout.Content style={{ padding: '24px', background: '#fff' }}>
           <div style={{ maxWidth: 800, margin: '0 auto' }}>
-         
             <Card 
               title="Recent Activity" 
               className="settings-card"
@@ -107,30 +114,48 @@ const handleDeleteAccount = async () => {
             >
               <div style={{ 
                 display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-                padding: '12px 0'
+                flexDirection: 'column', 
+                gap: 12,
               }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                  <DeleteOutlined style={{ 
-                    color: '#ff4d4f', 
-                    fontSize: 20,
-                    marginTop: 4
-                  }} />
-                  <div>
-                    <div style={{ fontWeight: 500 }}>Delete Account</div>
-                    <div style={{ color: '#666', fontSize: 13 }}>
-                      Permanently delete your account and all associated data. This cannot be undone.
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  padding: '12px 0'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                    <DeleteOutlined style={{ 
+                      color: '#ff4d4f', 
+                      fontSize: 20,
+                      marginTop: 4
+                    }} />
+                    <div>
+                      <div style={{ fontWeight: 500 }}>Delete Account</div>
+                      <div style={{ color: '#666', fontSize: 13 }}>
+                        Permanently delete your account and all associated data. This cannot be undone.
+                      </div>
                     </div>
                   </div>
+                  <Button 
+                    danger 
+                    onClick={handleDeleteClick}
+                    loading={loading}
+                  >
+                    Delete Account
+                  </Button>
                 </div>
-                <Button 
-                  danger 
-                  onClick={() => setDeleteModalVisible(true)}
-                  loading={loading}
-                >
-                  Delete Account
-                </Button>
+                {soldTickets?.length > 0 && (
+                  <Alert 
+                    message="Note: You cannot delete your account until events with sold tickets are completed." 
+                    type="warning" 
+                  />
+                )}
+                {!soldTickets?.length && (
+                  <div style={{ color: '#ff4d4f', fontSize: 13 }}>
+                    Note: Deleting your account will permanently remove all your data.
+                    If you have events with tickets that have been sold, you won't be able to delete your account until those events are completed.
+                  </div>
+                )}
               </div>
             </Card>
           </div>
@@ -138,7 +163,6 @@ const handleDeleteAccount = async () => {
       </Layout>
       <AppFooter />
 
- 
       <ConfirmModal
         visible={isDeleteModalVisible}
         title="Permanently Delete Your Account?"
@@ -148,11 +172,7 @@ const handleDeleteAccount = async () => {
         cancelText="Cancel"
         loading={loading}
       >
-        <p>This action cannot be undone. All your data will be permanently deleted.</p>
-        <p style={{ color: '#ff4d4f', marginTop: 8 }}>
-          Note: If you have events with tickets that have been sold, 
-          you won't be able to delete your account until those events are completed.
-        </p>
+        <p>Are you sure you want to permanently delete your account?</p>
       </ConfirmModal>
     </div>
   );

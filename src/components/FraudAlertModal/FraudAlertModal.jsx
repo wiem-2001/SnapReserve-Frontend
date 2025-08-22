@@ -23,6 +23,7 @@ const FraudAlertModal = ({ visible, onClose }) => {
       </Text>
        <Text  style={{ fontSize: '16px', fontWeight: 'bold' }}>
         If you believe this was a mistake, please ignore this and try again.
+        If not, we recommend securing your account and checking your credit card activity immediately.
       </Text>
        </div>
       

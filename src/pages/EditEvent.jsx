@@ -293,7 +293,7 @@ const handleSubmit = async () => {
     submissionData.append('category', formData.category);
     submissionData.append('description', formData.description);
     
-    // Only append image if it's a new one
+  
     if (formData.image) {
       submissionData.append('image', formData.image);
     } else if (originalImage) {
@@ -302,7 +302,7 @@ const handleSubmit = async () => {
     
     submissionData.append('dates', JSON.stringify(formData.dates));
     
-    // Ensure the ID is properly passed
+
     await updateEvent(id, submissionData);
     message.success('Event updated successfully!');
     navigate('/manage-events');
@@ -697,12 +697,12 @@ const handleSubmit = async () => {
             
             <div style={{ marginTop: 24, display: 'flex', justifyContent: 'space-between' }}>
               {currentStep > 0 && (
-                <Button style={{ margin: '0 8px' }} onClick={prev}>
+                <Button style={{ margin: '0 8px' }} onClick={prev} className='light-btn'>
                   Previous
                 </Button>
               )}
               {currentStep < steps.length - 1 && (
-                <Button type="primary" onClick={next}>
+                <Button className='dark-btn' onClick={next}>
                   Next
                 </Button>
               )}

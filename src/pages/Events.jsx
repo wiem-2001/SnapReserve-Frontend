@@ -22,14 +22,13 @@ function Events() {
 
   useEffect(() => {
     const hasDisplayedScratchCard = localStorage.getItem('scratchCardDisplayed') === 'true';
-    const currentTime = new Date();
-    const expiryTime = welcome_gift_expiry ? new Date(welcome_gift_expiry) : null;
+    const expiryTime = welcome_gift_expiry 
+    const currentTime = new Date().toISOString();
     
-    // Check if eligible, not expired, and not loading
     const isActuallyEligible = eligible === true && 
                               expiryTime && 
                               currentTime < expiryTime;
-    
+
     if (isActuallyEligible && !loading) {
       if (!hasDisplayedScratchCard) {
         setShowScratchCard(true);
@@ -39,7 +38,6 @@ function Events() {
         setShowEligibilityReminder(true);
       }
     } else {
-      // Hide reminder if expired or not eligible
       setShowEligibilityReminder(false);
     }
   }, [eligible, loading, welcome_gift_expiry]);
@@ -48,13 +46,13 @@ function Events() {
     setShowScratchCard(false);
     setTimeout(() => {
       setIsBackgroundBlurred(false);
-    }, 300);
+    }, 1500);
   };
 
   const handleScratchComplete = () => {
     setTimeout(() => {
       setIsBackgroundBlurred(false);
-    }, 300);
+    }, 1500);
   };
 
   const handleCloseReminder = () => {

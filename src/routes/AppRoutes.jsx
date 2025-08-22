@@ -26,6 +26,7 @@ import Favorites from '../pages/Favorites/Favorites.jsx';
 import PointsDashboard from '../pages/PointsDashboard/PointsDashboard.jsx';
 import ProtectedRoute from './ProtectedRoute.jsx';
 import Unauthorized from '../pages/Unauthorized.jsx';
+import VerifyExpired from '../pages/VerifyExpired.jsx';
 
 const AppRoutes = () => {
   return (
@@ -34,6 +35,7 @@ const AppRoutes = () => {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/verify-email" element={<VerifyEmail />} />
+      <Route path="/verify-expired" element={<VerifyExpired />} />
       <Route path="/forgot-password" element={<ForgetPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/verified" element={<Verified />} />

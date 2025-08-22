@@ -31,7 +31,6 @@ const useAuthStore = create((set) => ({
       const { token } = res.data;
       Cookies.set('token', token, { expires: 7, secure: true, sameSite: 'strict' });
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      localStorage.setItem("firstVisitDone", "true");
       set({ token, loading: false });
       return token;
     } catch (error) {
@@ -39,6 +38,17 @@ const useAuthStore = create((set) => ({
       throw error;
     }
   },
+
+  resendVerificationEmail : async (data) => {
+     set({ loading: true, error: null });
+     try {
+      const res = await axios.post(`${AuthApi}/resend-verification-email`, data);
+      return res.data;
+     }catch (error) {
+      set({ loading: false, error: error.response?.data?.message || error.message });
+      throw error;
+  }
+},
 
   getMe: async () => {
     set({ loading: true, error: null });

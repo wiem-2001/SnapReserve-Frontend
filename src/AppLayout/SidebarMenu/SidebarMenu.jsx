@@ -39,6 +39,7 @@ function SidebarMenu() {
       '8': '/analytics',
       '9': '/profile',
       '10': '/account-settings',
+      '11': '/notifications'
     };
 
     navigate(routes[key] || '/profile');
@@ -74,6 +75,7 @@ function SidebarMenu() {
       '/analytics': '8',
       '/profile': '9',
       '/account-settings': '10',
+      '/notifications':'11'
     };
 
     const pathMap = userRole === 'organizer' ? organizerPathToKey : attendeePathToKey;
@@ -151,10 +153,16 @@ function SidebarMenu() {
       label: <span className="sidebar-label">Personal Info</span>,
     },
     {
+      key: '11',
+      icon: <BellOutlined className="sidebar-icon" style={{ color: selectedKey === '4' ? '#FF4081' : '#021529' }} />,
+      label: <span className="sidebar-label">Notifications</span>,
+    },
+    {
       key: '10',
       icon: <SettingOutlined className="sidebar-icon" style={{ color: selectedKey === '10' ? '#FF4081' : '#021529' }} />,
       label: <span className="sidebar-label">Account Settings</span>,
     },
+    
   ];
 
   return (
