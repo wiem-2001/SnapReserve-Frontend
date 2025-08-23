@@ -50,23 +50,30 @@ const useAuthStore = create((set) => ({
   }
 },
 
-  getMe: async () => {
-    set({ loading: true, error: null });
-    try {
+getMe: async () => {
+  set({ loading: true, error: null });
+  try {
     const token = Cookies.get('token');
-      if (!token) throw new Error('No token found');
-      const res = await axios.get(`${AuthApi}/me`,{
-            withCredentials: true
-            });
-      set({ user: res.data, loading: false, token });
+    if (!token) throw new Error('No token found');
+    const res = await axios.get(`${AuthApi}/me`, {
+      withCredentials: true
+    });  
+    set({ user: res.data, loading: false, token });
+    return res.data;
     
-      return res.data;
-    } catch (error) {
-      set({ loading: false, user: null, token: null, error: error.response?.data?.message || error.message });
-        Cookies.remove('token');
-      throw error;
+  } catch (error) {
+    if (error.response?.status === 401 || error.message.includes('token')) {
+      Cookies.remove('token');
+      delete axios.defaults.headers.common['Authorization'];
+      set({ user: null, token: null, loading: false });
     }
-  },
+    set({ 
+      loading: false, 
+      error: error.response?.data?.message || error.message 
+    });
+    throw error;
+  }
+},
 
   logout: () => {
   Cookies.remove('token');
