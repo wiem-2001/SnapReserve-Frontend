@@ -31,7 +31,7 @@ const useOrganizerStatsStore = create((set) => ({
       const res = await axios.get(`${dashboardUrl}/ticketBenchMarking`,{
         withCredentials: true,
       });
-      set({ ticketBenMarking: res.data });
+      set({ ticketBenMarking: res.data.trends });
     } catch (err) {
       set({ error: err.response?.data?.message || 'Failed to fetch booking trends' });
     } finally {
@@ -45,7 +45,7 @@ const useOrganizerStatsStore = create((set) => ({
       const res = await axios.get(`${dashboardUrl}/topEvent`,{
         withCredentials: true,
       });
-      set({ topEvent: res.data });
+      set({ topEvent: res.data.topEvent });
     } catch (err) {
       set({ error: err.response?.data?.message || 'Failed to fetch top event' });
     } finally {
@@ -58,7 +58,7 @@ const useOrganizerStatsStore = create((set) => ({
       const res = await axios.get(`${dashboardUrl}/event-performance`,{
         withCredentials: true,
       });
-      set({ eventsPerformance: res.data });
+      set({ eventsPerformance: res.data.sortedPerformance  });
     } catch (err) {
       set({ error: err.response?.data?.message || 'Failed to fetch top event' });
     } finally {
