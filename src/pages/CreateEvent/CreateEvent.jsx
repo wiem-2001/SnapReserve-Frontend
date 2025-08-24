@@ -146,7 +146,6 @@ function CreateEvent() {
 
   const validateDates = (dates) => {
   const newErrors = { ...errors };
-  console.log(dates)
   if (dates.length === 0) {
     newErrors.dates = 'At least one date required';
   } else {

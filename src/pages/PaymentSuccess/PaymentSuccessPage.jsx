@@ -20,10 +20,8 @@ import {
   EnvironmentOutlined,
   UserOutlined,
   TagOutlined,
-  HeartOutlined,
-  HeartFilled,
-  EditOutlined,
-  DeleteOutlined
+  GiftOutlined,
+  FireOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom'; 
 import { motion } from 'framer-motion';
@@ -57,10 +55,18 @@ export default function PaymentSuccessPage() {
   }, [sessionId, fetchOrderDetails, clearState]);
 
   const totalTickets = orderDetails?.items?.reduce((acc, item) => acc + item.quantity, 0) || 0;
+  const hadAnyDiscount = orderDetails?.wasDiscountApplied || orderDetails?.pointsDiscount > 0;
 
   if (loadingOrder) return <Spin tip="Loading order details..." />;
   if (error) return <Alert type="error" message={error} />;
   if (!orderDetails) return null;
+
+  const formatCurrency = (amount) => {
+  if (amount === null || amount === undefined || isNaN(amount)) {
+    return '0.00';
+  }
+  return amount.toFixed(2);
+  };
 
   return (
     <div className="payment-success-container">
@@ -176,50 +182,64 @@ export default function PaymentSuccessPage() {
                 <Text strong className="item-name">{item.name}</Text>{' '}
                 <Tag className="item-quantity">x{item.quantity}</Tag>
               </div>
-              <Text strong className="item-price">${(item.price * item.quantity).toFixed(2)}</Text>
+              <Text strong className="item-price">${formatCurrency(item.price * item.quantity)}</Text>
             </motion.div>
           ))}
         </Space>
 
         <Divider className="section-divider" />
 
-        <Row justify="space-between" align="middle" className="total-row">
-          <Text strong className="total-label">Total Paid</Text>
-          <Title level={3} className="total-amount">
-            ${orderDetails.total.toFixed(2)}
-          </Title>
-        </Row>
-
-          {orderDetails.wasDiscountApplied && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="discount-info"
-            >
+        {hadAnyDiscount && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="discount-info"
+          >
+            <Row justify="space-between" align="middle" className="original-price-row">
+              <Text type="secondary" className="original-label">
+                Original Price
+              </Text>
+             <Text delete type="secondary" className="original-amount">
+              ${formatCurrency(orderDetails.originalTotal)}
+            </Text>
+            </Row>
+            {orderDetails.wasDiscountApplied && (
               <Row justify="space-between" align="middle" className="discount-row">
-                <Text type="secondary" className="discount-label">
+                <Text className="discount-label">
                   <Tag color="green" icon={<CheckCircleOutlined />}>
-                    20% Welcome Discount Applied
+                    20% Welcome Discount
                   </Tag>
                 </Text>
-                <Text type="secondary" className="discount-amount">
-                  -${orderDetails.discountAmount.toFixed(2)}
+                <Text className="discount-amount" style={{ color: '#52c41a' }}>
+                  -${orderDetails.welcomeDiscount.toFixed(2)}
                 </Text>
               </Row>
-              
-              <Row justify="space-between" align="middle" className="original-price-row">
-                <Text type="secondary" className="original-label">
-                  Original Price
+            )}
+            {orderDetails.pointsDiscount > 0 && (
+              <Row justify="space-between" align="middle" className="discount-row">
+                <Text className="discount-label">
+                  <Tag color="blue" icon={<GiftOutlined />}>
+                    Points Reward Discount
+                  </Tag>
                 </Text>
-                <Text delete type="secondary" className="original-amount">
-                  ${orderDetails.originalTotal.toFixed(2)}
-                </Text>
+                <Text className="discount-amount" style={{ color: '#1890ff' }}>
+                -${formatCurrency(orderDetails.pointsDiscount)}
+              </Text>
               </Row>
-            </motion.div>
-          )}
+            )}
+          </motion.div>
+        )}
+        <Row justify="space-between" align="middle" className="total-row">
+          <Text strong className="total-label">
+            {hadAnyDiscount ? 'Final Amount Paid' : 'Total Amount'}
+          </Text>
+          <Title level={3} className="total-amount">
+          ${formatCurrency(orderDetails.finalAmount)}
+        </Title>
+        </Row>
 
-          <Divider className="section-divider" />
+        <Divider className="section-divider" />
 
         <Space direction="vertical" size="large" className="order-status">
           <p className="status-text-simple">
@@ -240,7 +260,6 @@ export default function PaymentSuccessPage() {
             </span>
           </p>
 
-
           <p className="status-text-simple">
             A confirmation email was sent to{' '}
             <span className="highlighted-data">
@@ -251,11 +270,25 @@ export default function PaymentSuccessPage() {
           <p className="status-text-simple">
             You can also check your tickets by clicking the "View My Tickets" button above or by checking your email.
           </p>
+          {orderDetails.pointsEarned > 0 && (
+            <div style={{ 
+              background: '#f6ffed', 
+              border: '1px solid #b7eb8f', 
+              borderRadius: '6px', 
+              padding: '12px',
+              marginTop: '10px'
+            }}>
+              <p style={{ margin: 0, color: '#52c41a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <FireOutlined />
+                <strong>+{orderDetails.pointsEarned} points</strong> earned from this purchase!
+              </p>
+            </div>
+          )}
         </Space>
 
         <Divider className="section-divider" />
 
-        <Text type="secondary" className="support-text " >
+        <Text type="secondary" className="support-text">
           Enjoy the Event!
         </Text>
       </Card>

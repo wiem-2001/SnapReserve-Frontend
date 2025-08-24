@@ -31,8 +31,6 @@ const useOrganizerStatsStore = create((set) => ({
       const res = await axios.get(`${dashboardUrl}/ticketBenchMarking`,{
         withCredentials: true,
       });
-      console.log('Booking Trends:', res.data);
-
       set({ ticketBenMarking: res.data });
     } catch (err) {
       set({ error: err.response?.data?.message || 'Failed to fetch booking trends' });

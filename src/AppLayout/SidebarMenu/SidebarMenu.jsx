@@ -7,7 +7,7 @@ import {
   LineChartOutlined,
   CalendarOutlined,
   PlusOutlined,
-  ToolOutlined,
+  DashboardOutlined ,
   HeartOutlined
 } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
@@ -39,7 +39,8 @@ function SidebarMenu() {
       '8': '/analytics',
       '9': '/profile',
       '10': '/account-settings',
-      '11': '/notifications'
+      '11': '/notifications',
+      '12': '/points-dashboard'
     };
 
     navigate(routes[key] || '/profile');
@@ -67,6 +68,7 @@ function SidebarMenu() {
       '/favorites': '3',
       '/notifications': '4',
       '/account-settings': '5',
+      '/points-dashboard':'12'
     };
 
     const organizerPathToKey = {
@@ -106,7 +108,7 @@ function SidebarMenu() {
   const attendeeItems = [
     {
       key: '1',
-      icon: <UserOutlined className="sidebar-icon" style={{ color: selectedKey === '1' ? '#FF4081' : '#021529' }} />,
+      icon: <UserOutlined className="sidebar-icon"/>,
       label: <span className="sidebar-label">Personal Information</span>,
     },
     {
@@ -115,18 +117,31 @@ function SidebarMenu() {
       label: <span className="sidebar-label">Purchased Tickets</span>,
     },
     {
+  key: '12',
+  icon: (
+    <DashboardOutlined
+      className="sidebar-icon"
+      style={{
+        fontSize: '20px'
+      }}
+    />
+  ),
+  label: <span className="sidebar-label">Ticket Rewards</span>,
+},
+
+    {
       key: '3',
-      icon: <HeartOutlined className="sidebar-icon" style={{ color: selectedKey === '3' ? '#FF4081' : '#021529' }} />,
+      icon: <HeartOutlined className="sidebar-icon" />,
       label: <span className="sidebar-label">Favorites</span>,
     },
     {
       key: '4',
-      icon: <BellOutlined className="sidebar-icon" style={{ color: selectedKey === '4' ? '#FF4081' : '#021529' }} />,
+      icon: <BellOutlined className="sidebar-icon"  />,
       label: <span className="sidebar-label">Notifications</span>,
     },
     {
       key: '5',
-      icon: <SettingOutlined className="sidebar-icon" style={{ color: selectedKey === '5' ? '#FF4081' : '#021529' }} />,
+      icon: <SettingOutlined className="sidebar-icon"  />,
       label: <span className="sidebar-label">Account Settings</span>,
     },
   ];
@@ -134,32 +149,32 @@ function SidebarMenu() {
   const organizerItems = [
     {
       key: '6',
-      icon: <CalendarOutlined className="sidebar-icon" style={{ color: selectedKey === '6' ? '#FF4081' : '#021529' }} />,
+      icon: <CalendarOutlined className="sidebar-icon"  />,
       label: <span className="sidebar-label">Upcoming Events</span>,
     },
     {
       key: '7',
-      icon: <PlusOutlined className="sidebar-icon" style={{ color: selectedKey === '7' ? '#FF4081' : '#021529' }} />,
+      icon: <PlusOutlined className="sidebar-icon"  />,
       label: <span className="sidebar-label">Create Event</span>,
     },
     {
       key: '8',
-      icon: <LineChartOutlined className="sidebar-icon" style={{ color: selectedKey === '8' ? '#FF4081' : '#021529' }} />,
+      icon: <LineChartOutlined className="sidebar-icon" />,
       label: <span className="sidebar-label">Analytics</span>,
     },
     {
       key: '9',
-      icon: <UserOutlined className="sidebar-icon" style={{ color: selectedKey === '9' ? '#FF4081' : '#021529' }} />,
+      icon: <UserOutlined className="sidebar-icon"  />,
       label: <span className="sidebar-label">Personal Info</span>,
     },
     {
       key: '11',
-      icon: <BellOutlined className="sidebar-icon" style={{ color: selectedKey === '4' ? '#FF4081' : '#021529' }} />,
+      icon: <BellOutlined className="sidebar-icon"  />,
       label: <span className="sidebar-label">Notifications</span>,
     },
     {
       key: '10',
-      icon: <SettingOutlined className="sidebar-icon" style={{ color: selectedKey === '10' ? '#FF4081' : '#021529' }} />,
+      icon: <SettingOutlined className="sidebar-icon"  />,
       label: <span className="sidebar-label">Account Settings</span>,
     },
     
@@ -171,9 +186,6 @@ function SidebarMenu() {
         marginTop: 0,
         padding: 0,
         backgroundColor: 'white',
-        boxShadow: '4px 0 8px rgba(0, 0, 0, 0.1), -4px 0 8px rgba(0, 0, 0, 0.1)',
-        width: collapsed ? 80 : 250,
-        transition: 'all 0.3s',
       }}
     >
       <Sider

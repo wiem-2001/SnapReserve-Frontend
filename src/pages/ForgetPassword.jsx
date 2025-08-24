@@ -21,7 +21,6 @@ const handleForgetPassword = async (e) => {
     await forgetPassword({ email }); 
     navigate('/check-email');
   } catch (err) {
-    console.log('Caught error:', err);
     setErrorMessage(err);
   }finally {
     setIsSubmitting(false);

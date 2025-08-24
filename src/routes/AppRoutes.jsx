@@ -1,6 +1,5 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Deals from '../pages/Deals';
 import ForgetPassword from '../pages/ForgetPassword';
 import Profile from '../pages/Profile/Profile';
 import LoginPage from '../pages/LoginPage/LoginPage';
@@ -119,16 +118,6 @@ const AppRoutes = () => {
       />
 
       {/* Attendee-only routes */}
-      <Route
-        path="/deals"
-        element={
-          <ProtectedRoute allowedRoles={['attendee']}>
-            <Layout>
-              <Deals />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
       <Route
         path="/purchased-tickets"
         element={

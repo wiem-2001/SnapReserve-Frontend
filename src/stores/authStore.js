@@ -196,7 +196,6 @@ deleteUser: async () => {
     try {
       set({ loading: true });
       const res = await axios.get(`${AuthApi}/devices`, { withCredentials: true });
-      console.log('Fetched devices:', res.data);
       set({ devices: res.data, loading: false });
     } catch (error) {
        set({ error: error.message, loading: false });

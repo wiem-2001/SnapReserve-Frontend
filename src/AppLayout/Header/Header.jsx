@@ -16,6 +16,7 @@ import {
   DownOutlined,
   BellOutlined,
   HeartOutlined,
+  DashboardOutlined
 } from '@ant-design/icons';
 import logo from '../../assets/logo.png';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -28,8 +29,8 @@ const { Text } = Typography;
 
 const menuItems = [
   { key: 'home', label: 'UpComming events', path: '/' },
-  { key: 'deals', label: 'Deals', path: '/deals' },
-   { key: 'favorites', label: 'Favorites', path: '/favorites' },
+  { key: 'favorites', label: 'Favorites', path: '/favorites' },
+  { key: 'points-dashboard', label: 'Ticket Rewards', path: '/points-dashboard' },
 ];
 
 function Header() {
@@ -83,7 +84,10 @@ function Header() {
       }}
     >
       <Menu.Item key="profile" icon={<UserOutlined style={{ color: '#021529' }} />}>
-         My Account
+          Account
+      </Menu.Item>
+      <Menu.Item key="points-dashboard" icon={<DashboardOutlined  style={{ color: '#021529' }} />}>
+       Ticket Rewards
       </Menu.Item>
 
       {userRole === 'attendee' && (

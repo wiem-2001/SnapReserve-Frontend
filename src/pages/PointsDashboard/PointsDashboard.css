@@ -1,0 +1,325 @@
+.points-dashboard-container {
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+  min-height: 100vh;
+}
+
+.points-header {
+  text-align: left;
+  margin-bottom: 30px;
+}
+
+.points-title {
+  color: #021529;
+  margin-bottom: 8px;
+}
+
+.points-subtitle {
+  font-size: 16px;
+  color: #666;
+}
+
+.points-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+@media (max-width: 768px) {
+  .points-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.points-balance-card {
+  background: linear-gradient(135deg, #021529 0%, #06386e 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.points-balance-title {
+  color: #ffd72d;
+  margin-bottom: 8px;
+}
+
+.points-balance-value {
+  color: #ffd72d;
+  font-size: 48px;
+  font-weight: bold;
+}
+
+.points-balance-subtext {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+}
+
+.points-divider {
+  background-color: rgba(255, 255, 255, 0.2);
+  margin: 16px 0;
+}
+
+.progress-container {
+  margin-bottom: 16px;
+}
+
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 8px;
+}
+
+.progress-text {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+}
+
+.quick-actions-card {
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.quick-actions-title {
+  color: #021529;
+  margin-bottom: 20px;
+}
+
+.action-button {
+  width: 100%;
+  height: 50px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.action-button-primary {
+  background: #021529;
+  border-color: #021529;
+}
+
+.action-button-primary:hover {
+  background: #06386e;
+  border-color: #06386e;
+}
+
+.rewards-card {
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.rewards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.reward-item {
+  border-radius: 8px;
+  text-align: center;
+  padding: 16px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.reward-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.reward-item-popular {
+  border: 2px solid #ffd72d;
+  background: #fffbe6;
+}
+
+.reward-title {
+  color: #021529;
+  margin: 8px 0;
+}
+
+.reward-points {
+  color: #666;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.redeem-button {
+  border-radius: 6px;
+}
+
+.activity-card {
+  border-radius: 12px;
+}
+
+.activity-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.activity-item:nth-child(even) {
+  background: #f9f9f9;
+}
+
+.activity-item:hover {
+  background: #f0f0f0;
+}
+
+.activity-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.activity-icon-earned {
+  background: #f6ffed;
+}
+
+.activity-icon-spent {
+  background: #fff2f0;
+}
+
+.activity-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.activity-event {
+  font-weight: 500;
+  color: #021529;
+}
+
+.activity-friend {
+  color: #666;
+  font-size: 12px;
+  display: block;
+}
+
+.activity-date {
+  color: #666;
+  font-size: 12px;
+}
+
+.activity-points {
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
+.share-modal .ant-modal-header {
+  border-bottom: 2px solid #021529;
+}
+
+.share-modal .ant-modal-title {
+  color: #021529;
+  font-weight: 600;
+}
+
+.share-input-group {
+  display: flex;
+}
+
+.share-input {
+  border-right: none;
+  border-radius: 6px 0 0 6px;
+}
+
+.share-copy-button {
+  border-radius: 0 6px 6px 0;
+  background: #021529;
+  border-color: #021529;
+}
+
+.share-copy-button:hover {
+  background: #06386e;
+  border-color: #06386e;
+}
+
+.share-copy-button.copied {
+  background: #52c41a;
+  border-color: #52c41a;
+}
+
+.popular-tag {
+  background: #ffd72d;
+  color: #021529;
+  font-weight: 600;
+  border: none;
+  margin-bottom: 12px;
+}
+
+.points-tag-earned {
+  background: #f6ffed;
+  color: #52c41a;
+  border-color: #b7eb8f;
+}
+
+.points-tag-spent {
+  background: #fff2f0;
+  color: #ff4d4f;
+  border-color: #ffccc7;
+}
+
+.points-balance-center {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.points-balance-icon {
+  font-size: 32px;
+  color: #ffd72d;
+}
+
+.points-balance-main {
+  color: #ffd72d;
+  margin: 8px 0;
+}
+
+.points-breakdown {
+  display: flex;
+  justify-content: space-between;
+  color: white;
+}
+
+.activity-icon-redeemed {
+  background: #e6f7ff;
+}
+
+.points-tag-redeemed {
+  background: #e6f7ff;
+  color: #1890ff;
+  border-color: #91d5ff;
+}
+
+.activity-details {
+  color: #666;
+  font-size: 14px;
+}
+
+.quick-actions-divider {
+  margin: 16px 0;
+}
+
+.quick-actions-tip {
+  font-size: 12px;
+  color: #666;
+}
+
+.dark-btn {
+  background: #021529;
+  color: #ffd72d;
+}
+
+.dark-btn:hover {
+  background-color: #06386e !important;
+  border-color: #06386e !important;
+  color: #ffd72d !important;
+}
