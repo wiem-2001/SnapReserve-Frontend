@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  react-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: react-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - .env
+    networks:
+      - snapreserve-network
+    restart: unless-stopped
+
+networks:
+  snapreserve-network:
+    driver: bridge

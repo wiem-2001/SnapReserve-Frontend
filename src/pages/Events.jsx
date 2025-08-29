@@ -6,12 +6,18 @@ import ScratchCard from '../components/ScratchCard/ScratchCard';
 import useDealsStore from '../stores/dealsStore';
 import { Button } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
+import useAuthStore from '../stores/authStore';
 
 function Events() {
   const [showScratchCard, setShowScratchCard] = useState(false);
   const [isBackgroundBlurred, setIsBackgroundBlurred] = useState(false);
   const [showEligibilityReminder, setShowEligibilityReminder] = useState(false);
   const { eligible, welcome_gift_expiry, loading, fetchScratchEligibility } = useDealsStore();
+    const {getMe, user:authUser} = useAuthStore()
+
+   useEffect(() => {
+      getMe();
+    }, [getMe]);
 
   useEffect(() => {
     const checkEligibility = async () => {
@@ -21,14 +27,15 @@ function Events() {
   }, [fetchScratchEligibility]);
 
   useEffect(() => {
-    const hasDisplayedScratchCard = localStorage.getItem('scratchCardDisplayed') === 'true';
+    if(authUser?.user?.role=="attendee") {
+ const hasDisplayedScratchCard = localStorage.getItem('scratchCardDisplayed') === 'true';
     const expiryTime = welcome_gift_expiry 
     const currentTime = new Date().toISOString();
     
     const isActuallyEligible = eligible === true && 
                               expiryTime && 
-                              currentTime < expiryTime;
-
+                              currentTime < expiryTime ;
+                              
     if (isActuallyEligible && !loading) {
       if (!hasDisplayedScratchCard) {
         setShowScratchCard(true);
@@ -40,6 +47,8 @@ function Events() {
     } else {
       setShowEligibilityReminder(false);
     }
+    }
+   
   }, [eligible, loading, welcome_gift_expiry]);
 
   const handleDismiss = () => {

@@ -179,6 +179,7 @@ deleteUser: async () => {
   try {
     await axios.delete(`${AuthApi}/delete-account`, { withCredentials: true });
     Cookies.remove('token');
+    localStorage.clear();
     set({ user: null, token: null, loading: false });
     return { success: true, message: 'Account deleted successfully.' };
   } catch (error) {

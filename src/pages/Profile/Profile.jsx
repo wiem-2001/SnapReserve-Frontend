@@ -251,20 +251,20 @@ function Profile() {
             cancelText="Cancel"
             centered
             okButtonProps={{
-    style: {
-      backgroundColor: '#021529', 
-      borderColor: '#021529',
-      color: '#ffd72d',           
-      fontWeight: 'bold',
-    },
-  }}
-  cancelButtonProps={{
-    style: {
-      color: '#021529',
-      borderColor: '#021529',
-      fontWeight: 'bold',
-    },}}
-          >
+              style: {
+                backgroundColor: '#021529', 
+                borderColor: '#021529',
+                color: '#ffd72d',           
+                fontWeight: 'bold',
+              },
+            }}
+            cancelButtonProps={{
+              style: {
+                color: '#021529',
+                borderColor: '#021529',
+                fontWeight: 'bold',
+              },}}
+                    >
             <div style={{ textAlign: 'center', padding: '20px 0' }}>
               <p>Do you want to use this as your new profile picture?</p>
               <img

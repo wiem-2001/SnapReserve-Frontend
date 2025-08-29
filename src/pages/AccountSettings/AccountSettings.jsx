@@ -24,11 +24,12 @@ function AccountSettings() {
   const deleteUser = useAuthStore((state) => state.deleteUser);
   const fetchUserDevices = useAuthStore((state) => state.fetchUserDevices);
   const devices = useAuthStore((state) => state.devices);
-  const soldTickets = useAuthStore((state) => state.soldTickets); 
-
+  const soldTickets = useAuthStore((state) => state.soldTickets);
+  const {getMe, user:authUser} = useAuthStore()
   const [loading, setLoading] = useState(false);
   const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
   const [visibleCount, setVisibleCount] = useState(3);  
+
 
   useEffect(() => {
     fetchUserDevices();
@@ -49,7 +50,10 @@ function AccountSettings() {
       setLoading(false);
     }
   };
-
+ 
+ useEffect(() => {
+    getMe();
+  }, [getMe]);
   const handleLoadMore = () => {
     setVisibleCount((prev) => prev + 3);  
   };
@@ -150,7 +154,7 @@ function AccountSettings() {
                     type="warning" 
                   />
                 )}
-                {!soldTickets?.length && (
+                {!soldTickets?.length && authUser?.user?.role == "organizer"&& (
                   <div style={{ color: '#ff4d4f', fontSize: 13 }}>
                     Note: Deleting your account will permanently remove all your data.
                     If you have events with tickets that have been sold, you won't be able to delete your account until those events are completed.

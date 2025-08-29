@@ -142,20 +142,6 @@ useEffect(() => {
           </Button>
         </Dropdown>
 
-        <div className="filter-input">
-          <Text style={{ color: '#021529', marginRight: '10px' }}>
-            Filter by Event Date
-          </Text>
-          <RangePicker
-            value={
-              filters.dateRange
-                ? [dayjs(filters.dateRange[0]), dayjs(filters.dateRange[1])]
-                : null
-            }
-            onChange={handleDateChange}
-          />
-        </div>
-
         <Button onClick={clearAllFilters}>Clear All Filters</Button>
       </div>
       
