@@ -12,7 +12,7 @@ function OrganizerAnalytics() {
         
         <Layout style={{ minHeight: '100vh',background: 'white' }}>
             <SidebarMenu />
-            <Layout.Content style={{ padding: '0px 24px', background: '#fff' }}>
+            <Layout.Content style={{ padding: '0px 50px', background: '#fff' }}>
                <OrganizerDashboard />
     </Layout.Content>
 

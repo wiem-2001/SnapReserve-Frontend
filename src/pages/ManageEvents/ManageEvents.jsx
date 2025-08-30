@@ -17,7 +17,7 @@ function ManageEvents() {
         
         <Layout style={{ minHeight: '100vh',background: 'white' }}>
             <SidebarMenu />
-            <Layout.Content style={{ padding: '0px 24px', background: '#fff' }}>
+            <Layout.Content style={{ padding: '0px 55px', background: '#fff' }}>
                <div className="manage-events-header">
                 <h2 className="manage-events-title">My Upcoming Events</h2>
                     <Button 
